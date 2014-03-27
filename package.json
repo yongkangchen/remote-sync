@@ -1,0 +1,16 @@
+{
+  "name": "remote-sync",
+  "version": "0.0.0",
+  "description": "Upload your files to remote host after every change.",
+  "license": "MIT",
+  "repository": "https://github.com/vslinko/remote-sync",
+  "main": "index.coffee",
+  "engines": {
+    "atom": ">=0.78"
+  },
+  "dependencies": {
+    "emissary": "^1.2",
+    "ssh2": "^0.2",
+    "atom-message-panel": "^0.3"
+  }
+}
