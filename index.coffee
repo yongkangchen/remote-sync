@@ -2,6 +2,7 @@
 SSHConnection = require 'ssh2'
 minimatch = require 'minimatch'
 msgPanel = require 'atom-message-panel'
+async = require 'async'
 path = require 'path'
 fs = require 'fs'
 
@@ -13,6 +14,8 @@ class RemoteSync
   Subscriber.includeInto @
 
   constructor: ->
+    @queue = async.queue(@syncFile.bind(@), 1)
+
     @subscribe atom.workspace.eachEditor (editor) =>
       buffer = editor.getBuffer()
 
@@ -37,43 +40,59 @@ class RemoteSync
       if fs.existsSync settingsFilePath
         filePath = path.relative(rootDirectory, buffer.file.path)
         settings = JSON.parse(fs.readFileSync(settingsFilePath).toString())
-        @syncFile(rootDirectory, filePath, settings)
+        @queue.push
+          rootDirectory: rootDirectory
+          filePath: filePath
+          settings: settings
         break
 
-  syncFile: (rootDirectory, filePath, settings) ->
+  syncFile: (task, callback) ->
+    {rootDirectory, filePath, settings} = task
+
     if settings.ignore
       settings.ignore = [settings.ignore] unless Array.isArray settings.ignore
       for pattern in settings.ignore
         if minimatch filePath, pattern
           return
 
+    @openPanel()
+
+    handler = =>
+      setTimeout callback, 500
+      @destroyPanel()
+
     switch settings.transport
       when "scp"
-        @syncFileViaScp rootDirectory, filePath, settings
+        @syncFileViaScp rootDirectory, filePath, settings, handler
+      else
+        @error "Unkown transport \"#{settings.transport}\""
+        handler()
 
-  syncFileViaScp: (rootDirectory, filePath, settings) ->
-    @openPanel()
+  syncFileViaScp: (rootDirectory, filePath, settings, callback) ->
     @log "Uploading \"#{filePath}\" to \"#{settings.hostname}\""
 
     c = new SSHConnection
 
+    error = (err) =>
+      @error err
+      callback()
+
     c.on 'ready', =>
       c.sftp (err, sftp) =>
-        return @error err if err
+        return error err if err
 
         c.exec "mkdir -p #{settings.target}", (err) =>
-          return @error err if err
+          return error err if err
 
           sftp.fastPut path.join(rootDirectory, filePath), path.join(settings.target, filePath), (err) =>
-            return @error err if err
+            return error err if err
 
             @log "Uploaded successfuly"
-            @destroyPanel()
 
             sftp.end()
+            callback()
 
-    c.on 'error', (err) =>
-      @error err
+    c.on 'error', error
 
     c.connect
       host: settings.hostname
@@ -81,9 +100,11 @@ class RemoteSync
       password: settings.password
 
   openPanel: ->
-    unless @panelOpened
-      msgPanel.init "Remote Sync"
-      @panelOpened = true
+    if @panelOpened
+      msgPanel.destroy()
+
+    msgPanel.init "Remote Sync"
+    @panelOpened = true
 
     if @destroyTimeout
       clearTimeout @destroyTimeout
@@ -97,10 +118,11 @@ class RemoteSync
     , 2000
 
   log: (message) ->
+    msgPanel.clear()
     msgPanel.append.message(message)
 
   error: (message) ->
-    msgPanel.append.message("Error: #{message.message}")
+    @log "Error: #{message.message}"
 
 
 module.exports =

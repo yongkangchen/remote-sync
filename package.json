@@ -12,6 +12,7 @@
     "emissary": "^1.2",
     "ssh2": "^0.2",
     "minimatch": "^0.2",
+    "async": "^0.2",
     "atom-message-panel": "^0.3"
   }
 }
