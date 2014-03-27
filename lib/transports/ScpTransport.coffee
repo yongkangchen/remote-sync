@@ -6,10 +6,9 @@ path = require "path"
 module.exports =
 class ScpTransport
   constructor: (@logger) ->
+    @connections = {}
 
   upload: (rootDirectory, relativeFilePath, settings, callback) ->
-    @logger.log "Uploading: #{relativeFilePath}"
-
     localFilePath = path.join(rootDirectory, relativeFilePath)
     targetFilePath = path.join(settings.target, relativeFilePath)
 
@@ -17,9 +16,11 @@ class ScpTransport
       @logger.error err
       callback()
 
-    c = new SSHConnection
+    @_getConnection settings.hostname, settings.username, settings.password, (err, c) =>
+      return errorHandler err if err
 
-    c.on "ready", =>
+      @logger.log "Uploading: #{relativeFilePath}"
+
       c.sftp (err, sftp) =>
         return errorHandler err if err
 
@@ -32,12 +33,34 @@ class ScpTransport
             @logger.log "Uploaded: #{relativeFilePath}"
 
             sftp.end()
-            c.end()
             callback()
 
-    c.on "error", errorHandler
+  _getConnection: (hostname, username, password, callback) ->
+    key = "#{username}@#{hostname}"
 
-    c.connect
-      host: settings.hostname
-      username: settings.username
-      password: settings.password
+    if @connections[key]
+      return callback null, @connections[key]
+
+    @logger.log "Connecting: #{key}"
+
+    connection = new SSHConnection
+    wasReady = false
+
+    connection.on "ready", ->
+      wasReady = true
+      callback null, connection
+
+    connection.on "error", (err) =>
+      unless wasReady
+        callback err
+      @connections[key] = undefined
+
+    connection.on "end", =>
+      @connections[key] = undefined
+
+    connection.connect
+      host: hostname
+      username: username
+      password: password
+
+    @connections[key] = connection
