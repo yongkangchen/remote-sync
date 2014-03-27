@@ -1,6 +1,6 @@
 {
   "name": "remote-sync",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Upload your files to remote host after every change.",
   "license": "MIT",
   "repository": "https://github.com/vslinko/remote-sync",
