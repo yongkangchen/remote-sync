@@ -11,6 +11,9 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `username` — Remote host username.
 * `password` — Remote host password.
 * `target` — Target directory on remote host.
+* `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns
+  to ignore.
+
 
 For example:
 
@@ -20,6 +23,9 @@ For example:
   "hostname": "10.10.10.10",
   "username": "vagrant",
   "password": "vagrant",
-  "target": "/home/vagrant/dirname/subdirname"
+  "target": "/home/vagrant/dirname/subdirname",
+  "ignore": [
+    ".git/**"
+  ]
 }
 ```

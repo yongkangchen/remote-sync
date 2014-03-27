@@ -1,7 +1,7 @@
 {Subscriber} = require 'emissary'
 SSHConnection = require 'ssh2'
+minimatch = require 'minimatch'
 msgPanel = require 'atom-message-panel'
-util = require 'util'
 path = require 'path'
 fs = require 'fs'
 
@@ -41,6 +41,12 @@ class RemoteSync
         break
 
   syncFile: (rootDirectory, filePath, settings) ->
+    if settings.ignore
+      settings.ignore = [settings.ignore] unless Array.isArray settings.ignore
+      for pattern in settings.ignore
+        if minimatch filePath, pattern
+          return
+
     switch settings.transport
       when "scp"
         @syncFileViaScp rootDirectory, filePath, settings
