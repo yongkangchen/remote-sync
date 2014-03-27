@@ -13,6 +13,6 @@
     "ssh2": "^0.2",
     "minimatch": "^0.2",
     "async": "^0.2",
-    "atom-message-panel": "^0.3"
+    "atom-message-panel": "git+https://github.com/vslinko/atom-message-panel.git#patch-1"
   }
 }
