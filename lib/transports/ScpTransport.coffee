@@ -17,7 +17,7 @@ class ScpTransport
       @logger.error err
       callback()
 
-    @_getConnection settings.hostname, settings.username, settings.password, (err, c) =>
+    @_getConnection settings.hostname, settings.port, settings.username, settings.password, (err, c) =>
       return errorHandler err if err
 
       @logger.log "Uploading: #{relativeFilePath}"
@@ -45,7 +45,7 @@ class ScpTransport
       @logger.error err
       callback()
 
-    @_getConnection settings.hostname, settings.username, settings.password, (err, c) =>
+    @_getConnection settings.hostname, settings.port settings.username, settings.password, (err, c) =>
       return errorHandler err if err
 
       @logger.log "Downloading: #{relativeFilePath}"
@@ -65,7 +65,7 @@ class ScpTransport
             callback()
 
   fetchFileTree: (settings, callback) ->
-    @_getConnection settings.hostname, settings.username, settings.password, (err, c) =>
+    @_getConnection settings.hostname, settings.port, settings.username, settings.password, (err, c) =>
       return callback err if err
 
       c.exec "find \"#{settings.target}\" -type f", (err, result) ->
@@ -80,8 +80,8 @@ class ScpTransport
             .map((f) -> f.replace(targetRegexp, ""))
           callback null, files
 
-  _getConnection: (hostname, username, password, callback) ->
-    key = "#{username}@#{hostname}"
+  _getConnection: (hostname, port, username, password, callback) ->
+    key = "#{username}@#{hostname}:#{port}"
 
     if @connections[key]
       return callback null, @connections[key]
@@ -105,6 +105,7 @@ class ScpTransport
 
     connection.connect
       host: hostname
+      port: port
       username: username
       password: password
 
