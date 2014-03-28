@@ -45,7 +45,7 @@ class ScpTransport
       @logger.error err
       callback()
 
-    @_getConnection settings.hostname, settings.port settings.username, settings.password, (err, c) =>
+    @_getConnection settings.hostname, settings.port, settings.username, settings.password, (err, c) =>
       return errorHandler err if err
 
       @logger.log "Downloading: #{relativeFilePath}"
