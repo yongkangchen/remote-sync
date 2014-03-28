@@ -1,5 +1,6 @@
 {MessagePanelView, PlainMessageView} = require "atom-message-panel"
 SSHConnection = require "ssh2"
+mkdirp = require "mkdirp"
 path = require "path"
 
 
@@ -34,6 +35,50 @@ class ScpTransport
 
             sftp.end()
             callback()
+    @connections = {}
+
+  download: (rootDirectory, relativeFilePath, settings, callback) ->
+    localFilePath = path.join(rootDirectory, relativeFilePath)
+    targetFilePath = path.join(settings.target, relativeFilePath)
+
+    errorHandler = (err) =>
+      @logger.error err
+      callback()
+
+    @_getConnection settings.hostname, settings.username, settings.password, (err, c) =>
+      return errorHandler err if err
+
+      @logger.log "Downloading: #{relativeFilePath}"
+
+      c.sftp (err, sftp) =>
+        return errorHandler err if err
+
+        mkdirp path.dirname(localFilePath), (err) =>
+          return errorHandler err if err
+
+          sftp.fastGet targetFilePath, localFilePath, (err) =>
+            return errorHandler err if err
+
+            @logger.log "Downloaded: #{relativeFilePath}"
+
+            sftp.end()
+            callback()
+
+  fetchFileTree: (settings, callback) ->
+    @_getConnection settings.hostname, settings.username, settings.password, (err, c) =>
+      return callback err if err
+
+      c.exec "find \"#{settings.target}\" -type f", (err, result) ->
+        return callback err if err
+
+        buf = ""
+        result.on "data", (data) -> buf += data.toString()
+        result.on "end", ->
+          targetRegexp = new RegExp "^#{settings.target}/"
+          files = buf.split("\n")
+            .filter((f) -> targetRegexp.test(f))
+            .map((f) -> f.replace(targetRegexp, ""))
+          callback null, files
 
   _getConnection: (hostname, username, password, callback) ->
     key = "#{username}@#{hostname}"

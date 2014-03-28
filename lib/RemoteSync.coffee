@@ -1,3 +1,4 @@
+DownloadAllCommand = require "./commands/DownloadAllCommand"
 SettingsLocator = require "./SettingsLocator"
 UploadListener = require "./UploadListener"
 ScpTransport = require "./transports/ScpTransport"
@@ -15,3 +16,7 @@ class RemoteSync
       scp: new ScpTransport logger
 
     new UploadListener logger, settingsLocator, transports
+
+    downloadAll = new DownloadAllCommand logger, settingsLocator, transports
+
+    atom.workspaceView.command "remote-sync:download-all", downloadAll.run.bind(downloadAll)
