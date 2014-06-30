@@ -8,6 +8,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 
 * `transport` — Only `scp` supported right now.
 * `hostname` — Remote host address.
+* `port` - Remort port to connect on.
 * `username` — Remote host username.
 * `password` — Remote host password.
 * `keyfile` — Absolute path to SSH key.
@@ -22,6 +23,7 @@ For example:
 {
   "transport": "scp",
   "hostname": "10.10.10.10",
+  "port": 22,
   "username": "vagrant",
   "password": "vagrant",
   "keyfile": "/home/vagrant/.ssh/aws.pem"
