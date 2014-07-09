@@ -26,7 +26,22 @@ For example:
   "port": 22,
   "username": "vagrant",
   "password": "vagrant",
-  "keyfile": "/home/vagrant/.ssh/aws.pem"
+  "keyfile": "/home/vagrant/.ssh/aws.pem",
+  "target": "/home/vagrant/dirname/subdirname",
+  "ignore": [
+    ".git/**"
+  ]
+}
+```
+
+useAgent example:
+```json
+{
+  "transport": "scp",
+  "hostname": "10.10.10.10",
+  "port": 22,
+  "username": "vagrant",
+  "useAgent": true,
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
     ".git/**"
