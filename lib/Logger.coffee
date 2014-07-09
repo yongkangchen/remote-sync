@@ -6,11 +6,17 @@ class Logger
   constructor: (title) ->
     @panel = new MessagePanelView title: title
 
-  log: (message) ->
+  showInPanel: (message) ->
     @panel.attach()
     @panel.setSummary message
     @panel.add new PlainMessageView message: message
 
+  log: (message) ->
+    if atom.config.get("remote-sync.logToConsole")
+      console.log message
+    else
+      @showInPanel message
+
   error: (message) ->
     @panel.unfold()
-    @log "Error: #{message}"
+    @showInPanel "Error: #{message}"
