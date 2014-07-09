@@ -18,7 +18,7 @@ class ScpTransport
       @logger.error err
       callback()
 
-    @_getConnection settings.hostname, settings.port, settings.username, settings.password, settings.keyfile, (err, c) =>
+    @_getConnection settings, (err, c) =>
       return errorHandler err if err
 
       @logger.log "Uploading: #{relativeFilePath}"
@@ -46,7 +46,7 @@ class ScpTransport
       @logger.error err
       callback()
 
-    @_getConnection settings.hostname, settings.port, settings.username, settings.password, settings.keyfile, (err, c) =>
+    @_getConnection settings, (err, c) =>
       return errorHandler err if err
 
       @logger.log "Downloading: #{relativeFilePath}"
@@ -66,7 +66,7 @@ class ScpTransport
             callback()
 
   fetchFileTree: (settings, callback) ->
-    @_getConnection settings.hostname, settings.port, settings.username, settings.password, settings.keyfile, (err, c) =>
+    @_getConnection settings, (err, c) =>
       return callback err if err
 
       c.exec "find \"#{settings.target}\" -type f", (err, result) ->
@@ -81,7 +81,7 @@ class ScpTransport
             .map((f) -> f.replace(targetRegexp, ""))
           callback null, files
 
-  _getConnection: (hostname, port, username, password, keyfile, callback) ->
+  _getConnection: ({hostname, port, username, password, keyfile, useAgent}, callback) ->
     key = "#{username}@#{hostname}:#{port}"
 
     if @connections[key]
@@ -110,5 +110,6 @@ class ScpTransport
       username: username
       password: password
       privateKey: if keyfile then fs.readFileSync keyfile else null
+      agent: if useAgent then process.env['SSH_AUTH_SOCK'] else null
 
     @connections[key] = connection
