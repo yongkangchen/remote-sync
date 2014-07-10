@@ -4,7 +4,6 @@ path = require "path"
 os = null
 exec = null
 
-# fs = require "fs"
 fs = require "fs-plus"
 SETTINGS_FILE_NAME = ".remote-sync.json"
 {$} = require "atom"
