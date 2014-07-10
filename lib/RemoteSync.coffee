@@ -1,12 +1,13 @@
 
 path = require "path"
-
+fs = require "fs-plus"
+{$} = require "atom"
 os = null
 exec = null
 
-fs = require "fs-plus"
+
 SETTINGS_FILE_NAME = ".remote-sync.json"
-{$} = require "atom"
+
 logger = null
 configPath = null
 
@@ -19,21 +20,18 @@ transport = null
 uploadCmd = null
 downloadCmd = null
 
-
 module.exports =
-  configDefaults:
-    logToConsole: false
-    difftoolCommand: 'diffToolPath'
-
   activate: ->
     Logger = require "./Logger"
     logger = new Logger "Remote Sync"
 
+    #TODO: support project path change
     configPath = path.join atom.project.getPath(), SETTINGS_FILE_NAME
-    if fs.existsSync(configPath)
-      load()
-    else
-      console.error "cannot find sync-config: #{configPath}"
+    fs.exists configPath, (exists) ->
+      if exists
+        load()
+      else
+        console.error "cannot find sync-config: #{configPath}"
 
     atom.workspaceView.command "remote-sync:download-all", ->
       return logger.error("#{configPath} not exists") if not settings
@@ -51,7 +49,6 @@ module.exports =
 
     atom.workspaceView.command 'remote-sync:download', (e)->
       return logger.error("#{configPath} not exists") if not settings
-      # filePath = path.join atom.project.getPath(), $(e.target).attr("data-path")
       [localPath, isFile] = getSelectPath e
       if isFile
         return if settings.isIgnore(localPath)
@@ -96,41 +93,45 @@ download = (localPath, targetPath, callback)->
 
 minimatch = null
 load = ->
-  try
-    settings = JSON.parse fs.readFileSync(configPath)
-  catch err
-    deinit() if editorSubscription
-    logger.error "load #{configPath}, #{err}"
-    return
+  fs.readFile configPath,"utf8", (err, data)->
+    console.error configPath, err
+    return log.error err if err
 
-  console.log("setting: ", settings)
+    try
+      settings = JSON.parse(data)
+    catch err
+      deinit() if editorSubscription
+      logger.error "load #{configPath}, #{err}"
+      return
 
-  if settings.uploadOnSave
-    init() if not editorSubscription
-  else
-    unsubscript if editorSubscription
+    console.log("setting: ", settings)
 
-  if settings.ignore and not Array.isArray settings.ignore
-    settings.ignore = [settings.ignore]
-
-  settings.isIgnore = (filePath, relativizePath) ->
-    return false if not settings.ignore
-    if not relativizePath
-      filePath = atom.project.relativize filePath
+    if settings.uploadOnSave
+      init() if not editorSubscription
     else
-      filePath = path.relative relativizePath, filePath
-    minimatch = require "minimatch" if not minimatch
-    for pattern in settings.ignore
-      return true if minimatch filePath, pattern, { matchBase: true }
-    return false
+      unsubscript if editorSubscription
 
-  if transport
-    old = transport.settings
-    if old.username != settings.username or old.hostname != settings.hostname or old.port != settings.port
-      transport.dispose()
-      transport = null
-    else
-      transport.settings = settings
+    if settings.ignore and not Array.isArray settings.ignore
+      settings.ignore = [settings.ignore]
+
+    settings.isIgnore = (filePath, relativizePath) ->
+      return false if not settings.ignore
+      if not relativizePath
+        filePath = atom.project.relativize filePath
+      else
+        filePath = path.relative relativizePath, filePath
+      minimatch = require "minimatch" if not minimatch
+      for pattern in settings.ignore
+        return true if minimatch filePath, pattern, { matchBase: true }
+      return false
+
+    if transport
+      old = transport.settings
+      if old.username != settings.username or old.hostname != settings.hostname or old.port != settings.port
+        transport.dispose()
+        transport = null
+      else
+        transport.settings = settings
 
 init = ->
   editorSubscription = atom.workspace.eachEditor (editor) ->

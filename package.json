@@ -4,7 +4,7 @@
   "description": "Upload your files to remote host after every change. Now only scp (sftp) supported, but ftp and webdav is planned.",
   "license": "MIT",
   "repository": "https://github.com/vslinko/remote-sync",
-  "main": "lib/RemoteSync",
+  "main": "index.coffee",
   "engines": {
     "atom": ">=0.78"
   },
