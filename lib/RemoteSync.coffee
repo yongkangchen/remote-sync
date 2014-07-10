@@ -1,22 +1,51 @@
-DownloadAllCommand = require "./commands/DownloadAllCommand"
-SettingsLocator = require "./SettingsLocator"
-UploadListener = require "./UploadListener"
-ScpTransport = require "./transports/ScpTransport"
-Logger = require "./Logger"
 
+download = null
+upload = null
+
+loaded = false
+
+logger = null
+settingsLocator = null
+transports = null
 
 module.exports =
-class RemoteSync
-  constructor: ->
-    logger = new Logger "Remote Sync"
+  configDefaults:
+    logToConsole: false
 
-    settingsLocator = new SettingsLocator
+  activate: ->
+    atom.workspace.eachEditor (editor) ->
+      handleEvents(editor)
 
-    transports =
-      scp: new ScpTransport logger
+    atom.workspaceView.command "remote-sync:download-all", ->
+      if not download
+        checkModule()
+        DownloadAllCommand = require "./commands/DownloadAllCommand"
+        download = new DownloadAllCommand logger, settingsLocator, transports
+      download.run()
 
-    new UploadListener logger, settingsLocator, transports
+handleEvents = (editor) ->
+  buffer = editor.getBuffer()
+  bufferSavedSubscription = buffer.on 'saved', ->
+    if not upload
+      checkModule()
+      UploadListener = require "./UploadListener"
+      upload = new UploadListener logger, settingsLocator, transports
 
-    downloadAll = new DownloadAllCommand logger, settingsLocator, transports
+    upload.handleSave(buffer)
 
-    atom.workspaceView.command "remote-sync:download-all", downloadAll.run.bind(downloadAll)
+  buffer.on "destroyed", =>
+    bufferSavedSubscription.off()
+
+checkModule = ->
+  return if loaded
+  loaded = true
+
+  Logger = require "./Logger"
+  SettingsLocator = require "./SettingsLocator"
+  ScpTransport = require "./transports/ScpTransport"
+
+  settingsLocator = new SettingsLocator
+  logger = new Logger "Remote Sync"
+
+  transports =
+    scp: new ScpTransport logger

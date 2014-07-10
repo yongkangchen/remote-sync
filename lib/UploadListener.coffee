@@ -1,48 +1,31 @@
-{MessagePanelView, PlainMessageView} = require "atom-message-panel"
-{Subscriber} = require "emissary"
-minimatch = require "minimatch"
-async = require "async"
-path = require "path"
-fs = require "fs"
 
-
-SETTINGS_FILE_NAME = ".remote-sync.json"
-
+minimatch = null
+async = null
 
 module.exports =
 class UploadListener
-  Subscriber.includeInto @
 
   constructor: (@logger, @settingsLocator, @transports) ->
-    @queue = async.queue(@uploadFile.bind(@), 1)
-
-    @subscribe atom.workspace.eachEditor (editor) =>
-      buffer = editor.getBuffer()
-
-      bufferSavedSubscription = @subscribe buffer, "saved", =>
-        @handleSave(buffer)
-
-      @subscribe editor, "destroyed", ->
-        bufferSavedSubscription.off()
-
-      @subscribe buffer, "destroyed", =>
-        @unsubscribe(buffer)
 
   handleSave: (buffer) ->
     @settingsLocator.locate buffer.file.path, (err, result) =>
       return @logger.error err if err
+      return if not result
+      if not @queue
+        async = require "async" if not async
+        @queue = async.queue(@uploadFile.bind(@), 1)
 
-      if result
-        @queue.push
-          settingsFilePath: result.settingsFilePath
-          rootDirectory: result.rootDirectory
-          relativeFilePath: result.relativeFilePath
-          settings: result.settings
+      @queue.push
+        settingsFilePath: result.settingsFilePath
+        rootDirectory: result.rootDirectory
+        relativeFilePath: result.relativeFilePath
+        settings: result.settings
 
   uploadFile: (task, callback) ->
     {rootDirectory, relativeFilePath, settings} = task
 
     if settings.ignore
+      minimatch = require "minimatch" if not minimatch
       settings.ignore = [settings.ignore] unless Array.isArray settings.ignore
       for pattern in settings.ignore
         if minimatch relativeFilePath, pattern
