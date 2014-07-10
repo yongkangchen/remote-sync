@@ -1,12 +1,17 @@
-{MessagePanelView, PlainMessageView} = require "atom-message-panel"
+PlainMessageView = null
 
 
 module.exports =
 class Logger
-  constructor: (title) ->
-    @panel = new MessagePanelView title: title
+  constructor: (@title) ->
 
-  showInPanel: (message) ->
+  showInPanel: (message, toggle) ->
+    if not @panel
+      {MessagePanelView, PlainMessageView} = require "atom-message-panel"
+      @panel = new MessagePanelView title: title
+
+    @panel.unfold() if toggle
+
     @panel.attach()
     @panel.setSummary message
     @panel.add new PlainMessageView message: message
@@ -18,5 +23,4 @@ class Logger
       @showInPanel message
 
   error: (message) ->
-    @panel.unfold()
-    @showInPanel "Error: #{message}"
+    @showInPanel "Error: #{message}", true
