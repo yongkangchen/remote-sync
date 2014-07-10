@@ -13,7 +13,7 @@
     "minimatch": "^0.2",
     "async": "^0.2",
     "mkdirp": "^0.3",
-    "atom-message-panel": "git+https://github.com/vslinko/atom-message-panel.git#patch-1",
+    "atom-message-panel": "^1.1.1",
     "fs-plus": "^2.1"
   }
 }
