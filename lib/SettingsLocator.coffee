@@ -5,21 +5,23 @@ SETTINGS_FILE_NAME = ".remote-sync.json"
 
 module.exports =
 class SettingsLocator
-  locate: (sourceFilePath, callback) ->
+  locate: (sourceFilePath, callback, isDir) ->
     path = require "path" if not path
     fs = require "fs" if not fs
 
     if path.basename(sourceFilePath) is SETTINGS_FILE_NAME
       return callback null, null
 
-    rootDirectory = sourceFilePath
+    if isDir
+      rootDirectory = sourceFilePath
+    else
+      rootDirectory = path.dirname sourceFilePath
 
     while rootDirectory isnt "/"
-      rootDirectory = path.dirname rootDirectory
       settingsFilePath = path.join rootDirectory, SETTINGS_FILE_NAME
-
       if fs.existsSync settingsFilePath
         return @_readSettings settingsFilePath, sourceFilePath, callback
+      rootDirectory = path.dirname rootDirectory
 
     callback null, null
 

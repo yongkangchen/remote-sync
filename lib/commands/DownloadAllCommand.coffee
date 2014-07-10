@@ -10,10 +10,10 @@ class DownloadAllCommand
     minimatch = require "minimatch" if not minimatch
     async = require "async" if not async
 
-    buffer = atom.workspace.getActiveEditor().getBuffer()
-    return unless buffer.file
-    filePath = buffer.file.path
-    @settingsLocator.locate filePath, (err, result) =>
+    path = atom.project.getPath()
+    return unless path
+
+    @settingsLocator.locate path, (err, result) =>
       return @logger.error err if err
 
       settings = result.settings
@@ -35,3 +35,4 @@ class DownloadAllCommand
           return @logger.error if err
           return @logger.error err if err
           @logger.log "Downloaded all files"
+    ,true
