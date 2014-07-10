@@ -5,21 +5,25 @@ path = require "path"
 
 module.exports =
 class ScpTransport
-  constructor: (@logger) ->
-    @connections = {}
+  constructor: (@logger, @settings) ->
 
-  upload: (rootDirectory, relativeFilePath, settings, callback) ->
-    localFilePath = path.join(rootDirectory, relativeFilePath)
-    targetFilePath = path.join(settings.target, relativeFilePath)
+  dispose: ->
+    if @connection
+      @connection.end()
+      @connection = null
+
+  upload: (localFilePath, callback) ->
+    targetFilePath = path.resolve(@settings.target,
+                          path.relative(atom.project.getPath(), localFilePath))
 
     errorHandler = (err) =>
       @logger.error err
       callback()
 
-    @_getConnection settings, (err, c) =>
+    @_getConnection (err, c) =>
       return errorHandler err if err
 
-      @logger.log "Uploading: #{relativeFilePath}"
+      @logger.log "Uploading: #{localFilePath} to #{targetFilePath}"
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
@@ -30,24 +34,25 @@ class ScpTransport
           sftp.fastPut localFilePath, targetFilePath, (err) =>
             return errorHandler err if err
 
-            @logger.log "Uploaded: #{relativeFilePath}"
+            @logger.log "Uploaded: #{localFilePath} to #{targetFilePath}"
 
             sftp.end()
             callback()
-    @connections = {}
 
-  download: (rootDirectory, relativeFilePath, settings, callback) ->
-    localFilePath = path.join(rootDirectory, relativeFilePath)
-    targetFilePath = path.join(settings.target, relativeFilePath)
+  download: (targetFilePath, localFilePath, callback) ->
+    if not localFilePath
+      localFilePath = atom.project.getPath()
+
+    localFilePath = path.resolve(localFilePath,
+                                path.relative(@settings.target, targetFilePath))
 
     errorHandler = (err) =>
       @logger.error err
-      callback()
 
-    @_getConnection settings, (err, c) =>
+    @_getConnection (err, c) =>
       return errorHandler err if err
 
-      @logger.log "Downloading: #{relativeFilePath}"
+      @logger.log "Downloading: #{targetFilePath} to #{localFilePath}"
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
@@ -58,36 +63,40 @@ class ScpTransport
           sftp.fastGet targetFilePath, localFilePath, (err) =>
             return errorHandler err if err
 
-            @logger.log "Downloaded: #{relativeFilePath}"
+            @logger.log "Downloaded: #{targetFilePath} to #{localFilePath}"
 
             sftp.end()
-            callback()
+            callback?()
 
-  fetchFileTree: (settings, callback) ->
-    @_getConnection settings, (err, c) =>
+  fetchFileTree: (localPath, callback) ->
+    targetPath = path.resolve(@settings.target,
+                          path.relative(atom.project.getPath(), localPath))
+    {isIgnore} = @settings
+
+    @_getConnection (err, c) ->
       return callback err if err
 
-      c.exec "find \"#{settings.target}\" -type f", (err, result) ->
+      c.exec "find \"#{targetPath}\" -type f", (err, result) ->
         return callback err if err
 
         buf = ""
         result.on "data", (data) -> buf += data.toString()
         result.on "end", ->
-          targetRegexp = new RegExp "^#{settings.target}/"
-          files = buf.split("\n")
-            .filter((f) -> targetRegexp.test(f))
-            .map((f) -> f.replace(targetRegexp, ""))
+          files = buf.split("\n").filter((f) ->
+            return f and not isIgnore(f, targetPath))
+
           callback null, files
 
-  _getConnection: ({hostname, port, username, password, keyfile, useAgent}, callback) ->
-    key = "#{username}@#{hostname}:#{port}"
+  _getConnection: (callback) ->
+    {hostname, port, username, password, keyfile, useAgent} = @settings
 
-    if @connections[key]
-      return callback null, @connections[key]
+    if @connection
+      return callback null, @connection
 
-    @logger.log "Connecting: #{key}"
+    @logger.log "Connecting: #{username}@#{hostname}:#{port}"
 
     SSHConnection = require "ssh2" if not SSHConnection
+
     connection = new SSHConnection
     wasReady = false
 
@@ -98,10 +107,10 @@ class ScpTransport
     connection.on "error", (err) =>
       unless wasReady
         callback err
-      @connections[key] = undefined
+      @connection = null
 
     connection.on "end", =>
-      @connections[key] = undefined
+      @connection = null
 
     if keyfile
       fs = require "fs" if not fs
@@ -117,4 +126,4 @@ class ScpTransport
       privateKey: privateKey
       agent: if useAgent then process.env['SSH_AUTH_SOCK'] else null
 
-    @connections[key] = connection
+    @connection = connection

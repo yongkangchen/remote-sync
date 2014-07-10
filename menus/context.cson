@@ -1,0 +1,6 @@
+'context-menu':
+  '.tree-view > li.directory':
+    'Remote Sync':
+      'upload': 'remote-sync:upload'
+      'download': 'remote-sync:download'
+      'diff': 'remote-sync:diff'
