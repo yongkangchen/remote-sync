@@ -1,9 +1,7 @@
-{MessagePanelView, PlainMessageView} = require "atom-message-panel"
-SSHConnection = require "ssh2"
-mkdirp = require "mkdirp"
+SSHConnection = null
+mkdirp = null
+fs = null
 path = require "path"
-fs = require "fs"
-
 
 module.exports =
 class ScpTransport
@@ -53,7 +51,7 @@ class ScpTransport
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
-
+        mkdirp = require "mkdirp" if not mkdirp
         mkdirp path.dirname(localFilePath), (err) =>
           return errorHandler err if err
 
@@ -89,6 +87,7 @@ class ScpTransport
 
     @logger.log "Connecting: #{key}"
 
+    SSHConnection = require "ssh2" if not SSHConnection
     connection = new SSHConnection
     wasReady = false
 
@@ -104,12 +103,18 @@ class ScpTransport
     connection.on "end", =>
       @connections[key] = undefined
 
+    if keyfile
+      fs = require "fs" if not fs
+      privateKey = fs.readFileSync keyfile
+    else
+      privateKey = null
+
     connection.connect
       host: hostname
       port: port
       username: username
       password: password
-      privateKey: if keyfile then fs.readFileSync keyfile else null
+      privateKey: privateKey
       agent: if useAgent then process.env['SSH_AUTH_SOCK'] else null
 
     @connections[key] = connection
