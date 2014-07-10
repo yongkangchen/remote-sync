@@ -8,7 +8,7 @@ class Logger
   showInPanel: (message, toggle) ->
     if not @panel
       {MessagePanelView, PlainMessageView} = require "atom-message-panel"
-      @panel = new MessagePanelView title: title
+      @panel = new MessagePanelView title: @title
 
     @panel.unfold() if toggle
 
