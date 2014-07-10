@@ -1,13 +1,14 @@
-path = require "path"
-fs = require "fs"
-
+path = null
+fs = null
 
 SETTINGS_FILE_NAME = ".remote-sync.json"
-
 
 module.exports =
 class SettingsLocator
   locate: (sourceFilePath, callback) ->
+    path = require "path" if not path
+    fs = require "fs" if not fs
+
     if path.basename(sourceFilePath) is SETTINGS_FILE_NAME
       return callback null, null
 
