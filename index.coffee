@@ -4,11 +4,11 @@ module.exports =
     difftoolCommand: 'diffToolPath'
 
   activate: (state) ->
-    if atom.project.getPath()
-      doActive()
-    else
-      atom.project.once "path-changed", doActive
+    doActive()
 
 doActive=->
-  RemoteSync = require "./lib/RemoteSync"
-  RemoteSync.activate()
+  if atom.project.getPath()
+    RemoteSync = require "./lib/RemoteSync"
+    RemoteSync.activate()
+  else
+    atom.project.once "path-changed", doActive
