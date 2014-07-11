@@ -1,6 +1,6 @@
 {
   "name": "remote-sync",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Upload your files to remote host after every change. Now only scp (sftp) supported, but ftp and webdav is planned.",
   "license": "MIT",
   "repository": "https://github.com/vslinko/remote-sync",
