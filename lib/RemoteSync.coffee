@@ -141,8 +141,8 @@ load = ->
 init = ->
   editorSubscription = atom.workspace.eachEditor (editor) ->
     buffer = editor.getBuffer()
-    bufferSavedSubscription = buffer.on 'saved', ->
-      handleSave(buffer.getUri())
+    bufferSavedSubscription = buffer.on 'after-will-be-saved', ->
+      handleSave(buffer.getUri()) if buffer.isModified()
 
     bufferSubscriptionList[bufferSavedSubscription] = true
     buffer.on "destroyed", ->
