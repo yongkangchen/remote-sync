@@ -1,22 +1,26 @@
-{MessagePanelView, PlainMessageView} = require "atom-message-panel"
+PlainMessageView = null
 
 
 module.exports =
 class Logger
-  constructor: (title) ->
-    @panel = new MessagePanelView title: title
+  constructor: (@title) ->
 
-  showInPanel: (message) ->
+  showInPanel: (message, className) ->
+    if not @panel
+      {MessagePanelView, PlainMessageView} = require "atom-message-panel"
+      @panel = new MessagePanelView
+        title: @title
+
     @panel.attach()
-    @panel.setSummary message
-    @panel.add new PlainMessageView message: message
+    @panel.add new PlainMessageView
+      message: message
+      className:className
 
   log: (message) ->
     if atom.config.get("remote-sync.logToConsole")
       console.log message
     else
-      @showInPanel message
+      @showInPanel message,"text-info"
 
   error: (message) ->
-    @panel.unfold()
-    @showInPanel "Error: #{message}"
+    @showInPanel "#{message}","text-error"
