@@ -7,7 +7,7 @@ module.exports =
     if atom.project.getPath()
       doActive()
     else
-      atom.project.once "path-changed", -> doActive
+      atom.project.once "path-changed", doActive
 
 doActive=->
   RemoteSync = require "./lib/RemoteSync"
