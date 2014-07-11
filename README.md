@@ -15,7 +15,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `target` — Target directory on remote host.
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns
   to ignore.
-
+* `uploadOnSave` — Optional, default: true
 
 For example:
 
