@@ -16,6 +16,7 @@ settings = null
 editorSubscription = null
 bufferSubscriptionList = {}
 transport = null
+statusView = null
 
 uploadCmd = null
 downloadCmd = null
@@ -25,13 +26,15 @@ module.exports =
     Logger = require "./Logger"
     logger = new Logger "Remote Sync"
 
+    statusView = new (require './StatusView')
     #TODO: support project path change
     configPath = path.join atom.project.getPath(), SETTINGS_FILE_NAME
+
     fs.exists configPath, (exists) ->
       if exists
         load()
       else
-        console.error "cannot find sync-config: #{configPath}"
+        statusView.update "question", "Not find config."
 
     atom.workspaceView.command "remote-sync:download-all", ->
       return logger.error("#{configPath} not exists") if not settings
@@ -95,8 +98,7 @@ download = (localPath, targetPath, callback)->
 minimatch = null
 load = ->
   fs.readFile configPath,"utf8", (err, data)->
-    console.error configPath, err
-    return log.error err if err
+    return logger.error err if err
 
     try
       settings = JSON.parse(data)
@@ -108,8 +110,10 @@ load = ->
     console.log("setting: ", settings)
 
     if settings.uploadOnSave
+      statusView.update "eye-watch"
       init() if not editorSubscription
     else
+      statusView.update "eye-unwatch", "uploadOnSave disabled."
       unsubscript if editorSubscription
 
     if settings.ignore and not Array.isArray settings.ignore
