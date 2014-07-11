@@ -41,6 +41,7 @@ module.exports =
       load()
 
     atom.workspaceView.command 'remote-sync:upload', (e)->
+      return logger.error("#{configPath} not exists") if not settings
       [localPath, isFile] = getSelectPath e
       if isFile
         handleSave(localPath)
