@@ -109,7 +109,7 @@ load = ->
 
     console.log("setting: ", settings)
 
-    if settings.uploadOnSave
+    if settings.uploadOnSave != false
       statusView.update "eye-watch"
       init() if not editorSubscription
     else
