@@ -88,7 +88,7 @@ class ScpTransport
           callback null, files
 
   _getConnection: (callback) ->
-    {hostname, port, username, password, keyfile, useAgent} = @settings
+    {hostname, port, username, password, keyfile, useAgent, passphrase} = @settings
 
     if @connection
       return callback null, @connection
@@ -124,6 +124,7 @@ class ScpTransport
       username: username
       password: password
       privateKey: privateKey
+      passphrase: passphrase
       agent: if useAgent then process.env['SSH_AUTH_SOCK'] else null
 
     @connection = connection
