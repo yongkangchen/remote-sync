@@ -14,7 +14,11 @@ class Logger
     @panel.attach()
     @panel.add new PlainMessageView
       message: message
-      className:className
+      className: className
+
+    @panel.setSummary
+      summary: message
+      className: className
 
   log: (message) ->
     if atom.config.get("remote-sync.logToConsole")
