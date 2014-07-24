@@ -27,6 +27,7 @@ For example:
   "username": "vagrant",
   "password": "vagrant",
   "keyfile": "/home/vagrant/.ssh/aws.pem",
+  "passphrase": "your_passphrase",
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
     ".git/**"
