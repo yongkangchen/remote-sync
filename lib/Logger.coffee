@@ -11,7 +11,8 @@ class Logger
       @panel = new MessagePanelView
         title: @title
 
-    @panel.attach()
+    @panel.attach() if @panel.parents('html').length == 0
+
     @panel.add new PlainMessageView
       message: message
       className: className
@@ -19,6 +20,8 @@ class Logger
     @panel.setSummary
       summary: message
       className: className
+
+    @panel.body.scrollTop(1e10)
 
   log: (message) ->
     if atom.config.get("remote-sync.logToConsole")
