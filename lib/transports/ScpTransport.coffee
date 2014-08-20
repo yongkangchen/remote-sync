@@ -70,8 +70,9 @@ class ScpTransport
             callback?()
 
   fetchFileTree: (localPath, callback) ->
-    targetPath = path.resolve(@settings.target,
+    targetPath = path.join(@settings.target,
                           path.relative(atom.project.getPath(), localPath))
+                          .replace(/\\/g, "/")
     {isIgnore} = @settings
 
     @_getConnection (err, c) ->
