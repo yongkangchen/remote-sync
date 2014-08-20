@@ -1,4 +1,4 @@
-SSHConnection = null
+FTPConnection = null
 mkdirp = null
 fs = null
 path = require "path"
@@ -9,13 +9,14 @@ class ScpTransport
 
   dispose: ->
     if @connection
-      @connection.end()
+      @connection.raw.quit (err, data) =>
+        @logger.error err if err
       @connection = null
 
   upload: (localFilePath, callback) ->
     targetFilePath = path.join(@settings.target,
-                          path.relative(atom.project.getPath(), localFilePath))
-                          .replace(/\\/g, "/")
+                                path.relative(atom.project.getPath(), localFilePath))
+                                .replace(/\\/g, "/")
 
     errorHandler = (err) =>
       @logger.error err
@@ -26,19 +27,15 @@ class ScpTransport
 
       @logger.log "Uploading: #{localFilePath} to #{targetFilePath}"
 
-      c.sftp (err, sftp) =>
+      c.mkdir path.dirname(targetFilePath), true, (err) =>
         return errorHandler err if err
 
-        c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) =>
+        c.put localFilePath, targetFilePath, (err) =>
           return errorHandler err if err
 
-          sftp.fastPut localFilePath, targetFilePath, (err) =>
-            return errorHandler err if err
+          @logger.log "Uploaded: #{localFilePath} to #{targetFilePath}"
 
-            @logger.log "Uploaded: #{localFilePath} to #{targetFilePath}"
-
-            sftp.end()
-            callback()
+          callback()
 
   download: (targetFilePath, localFilePath, callback) ->
     if not localFilePath
@@ -55,19 +52,22 @@ class ScpTransport
 
       @logger.log "Downloading: #{targetFilePath} to #{localFilePath}"
 
-      c.sftp (err, sftp) =>
+      mkdirp = require "mkdirp" if not mkdirp
+      mkdirp path.dirname(localFilePath), (err) =>
         return errorHandler err if err
-        mkdirp = require "mkdirp" if not mkdirp
-        mkdirp path.dirname(localFilePath), (err) =>
+
+        c.get targetFilePath, (err, readableStream) =>
           return errorHandler err if err
 
-          sftp.fastGet targetFilePath, localFilePath, (err) =>
-            return errorHandler err if err
+          fs = require "fs-plus" if not fs
+          writableStream = fs.createWriteStream(localFilePath)
+          writableStream.on "unpipe", ->
+            callback new Error("Error saving file")
+          readableStream.pipe writableStream
 
-            @logger.log "Downloaded: #{targetFilePath} to #{localFilePath}"
+          @logger.log "Downloaded: #{targetFilePath} to #{localFilePath}"
 
-            sftp.end()
-            callback?()
+          callback?()
 
   fetchFileTree: (localPath, callback) ->
     targetPath = path.resolve(@settings.target,
@@ -77,16 +77,15 @@ class ScpTransport
     @_getConnection (err, c) ->
       return callback err if err
 
-      c.exec "find \"#{targetPath}\" -type f", (err, result) ->
+      c.list targetPath, (err, list) ->
         return callback err if err
 
-        buf = ""
-        result.on "data", (data) -> buf += data.toString()
-        result.on "end", ->
-          files = buf.split("\n").filter((f) ->
-            return f and not isIgnore(f, targetPath))
+        files = []
+        for file, i in list
+          if file.type is '-' and file.name not isIgnore(file.name, targetPath)
+            files.push file.name
 
-          callback null, files
+        callback null, files
 
   _getConnection: (callback) ->
     {hostname, port, username, password, keyfile, useAgent, passphrase} = @settings
@@ -96,9 +95,9 @@ class ScpTransport
 
     @logger.log "Connecting: #{username}@#{hostname}:#{port}"
 
-    SSHConnection = require "ssh2" if not SSHConnection
+    FtpConnection = require "ftp" if not FtpConnection
 
-    connection = new SSHConnection
+    connection = new FtpConnection
     wasReady = false
 
     connection.on "ready", ->
@@ -113,19 +112,10 @@ class ScpTransport
     connection.on "end", =>
       @connection = null
 
-    if keyfile
-      fs = require "fs" if not fs
-      privateKey = fs.readFileSync keyfile
-    else
-      privateKey = null
-
     connection.connect
       host: hostname
       port: port
-      username: username
+      user: username
       password: password
-      privateKey: privateKey
-      passphrase: passphrase
-      agent: if useAgent then process.env['SSH_AUTH_SOCK'] else null
 
     @connection = connection

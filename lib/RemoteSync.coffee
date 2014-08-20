@@ -186,5 +186,9 @@ deinit = ->
 
 getTransport = ->
   return transport if transport
-  ScpTransport = require "./transports/ScpTransport"
-  transport = new ScpTransport logger, settings
+  if settings.transport is 'scp' or settings.type is 'sftp'
+    ScpTransport = require "./transports/ScpTransport"
+    transport = new ScpTransport logger, settings
+  else if settings.transport is 'ftp'
+    FtpTransport = require "./transports/FtpTransport"
+    transport = new FtpTransport logger, settings
