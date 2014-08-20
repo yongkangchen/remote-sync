@@ -61,13 +61,10 @@ class ScpTransport
 
           fs = require "fs-plus" if not fs
           writableStream = fs.createWriteStream(localFilePath)
-          writableStream.on "unpipe", ->
-            callback new Error("Error saving file")
+          writableStream.on "unpipe", =>
+            @logger.log "Downloaded: #{targetFilePath} to #{localFilePath}"
+            callback?()
           readableStream.pipe writableStream
-
-          @logger.log "Downloaded: #{targetFilePath} to #{localFilePath}"
-
-          callback?()
 
   fetchFileTree: (localPath, callback) ->
     targetPath = path.join(@settings.target,
