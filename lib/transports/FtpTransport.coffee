@@ -83,8 +83,8 @@ class ScpTransport
 
         files = []
         for file, i in list
-          if file.type is '-' and file.name not isIgnore(file.name, targetPath)
-            files.push file.name
+          if file.type is '-' and not isIgnore(file.name, targetPath)
+            files.push targetPath + "/" + file.name
 
         callback null, files
 
