@@ -6,12 +6,13 @@ Upload your files to remote host after every change.
 
 Create file `.remote-sync.json` in your project root with these settings:
 
-* `transport` — Only `scp` supported right now.
+* `transport` — `scp` for SCP/SFTP, or `ftp` for FTP
 * `hostname` — Remote host address.
 * `port` - Remort port to connect on.
 * `username` — Remote host username.
 * `password` — Remote host password.
-* `keyfile` — Absolute path to SSH key.
+* `keyfile` — Absolute path to SSH key. (only used for SCP)
+* `passphrase` — Passphrase for the SSH key (only used for SCP)
 * `target` — Target directory on remote host.
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns
   to ignore.
@@ -43,6 +44,21 @@ useAgent example:
   "port": 22,
   "username": "vagrant",
   "useAgent": true,
+  "target": "/home/vagrant/dirname/subdirname",
+  "ignore": [
+    ".git/**"
+  ]
+}
+```
+
+FTP example:
+```json
+{
+  "transport": "ftp",
+  "hostname": "10.10.10.10",
+  "port": 21,
+  "username": "vagrant",
+  "password": "vagrant",
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
     ".git/**"
