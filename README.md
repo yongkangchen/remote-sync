@@ -67,17 +67,7 @@ FTP example:
 ```
 ## Usage Example
 
-Create folder, then create a file name called, `.remote-sync.json` like below.
-
-```json
-{
-  "transport": "scp",
-  "hostname": "10.10.10.10",
-  "port": 22,
-  "username": "vagrant",
-  "password": "vagrant",
-  "keyfile": "/home/vagrant/.ssh/aws.pem",
-  "passphrase": "your_passphrase",
+Create folder, then create a file name called, `.remote-sync.json`.
 
 in ATOM editor press command + shitf + p, 
 
@@ -88,4 +78,3 @@ in ATOM editor press command + shitf + p,
 input `remote sync Reload download all`
 
 After those steps, you can upload files after files was changed.
-
