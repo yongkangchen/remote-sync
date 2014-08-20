@@ -14,7 +14,8 @@ class ScpTransport
 
   upload: (localFilePath, callback) ->
     targetFilePath = path.join(@settings.target,
-                          path.relative(atom.project.getPath(), localFilePath).replace("\\","/"))
+                          path.relative(atom.project.getPath(), localFilePath))
+                          .replace(/\\/g, "/")
 
     errorHandler = (err) =>
       @logger.error err
