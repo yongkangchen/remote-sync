@@ -57,7 +57,7 @@ module.exports =
       if isFile
         return if settings.isIgnore(localPath)
         localPath = atom.project.relativize(localPath)
-        getTransport().download(path.resolve(settings.target, localPath))
+        getTransport().download(path.join(settings.target, localPath).replace(/\\/g, "/"))
       else
         download(localPath)
 
@@ -77,7 +77,7 @@ module.exports =
 
       if isFile
         return if settings.isIgnore(localPath)
-        getTransport().download(path.resolve(settings.target, atom.project.relativize(localPath)), targetPath, diff)
+        getTransport().download(path.join(settings.target, atom.project.relativize(localPath)).replace(/\\/g, "/"), targetPath, diff)
       else
         download(localPath, targetPath, diff)
 
