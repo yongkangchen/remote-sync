@@ -34,17 +34,17 @@ module.exports =
       if exists
         load()
       else
-        statusView.update "question", "Not find config."
+        statusView.update "question", "Couldn't find config"
 
     atom.workspaceView.command "remote-sync:download-all", ->
-      return logger.error("#{configPath} not exists") if not settings
+      return logger.error("#{configPath} doesn't exist") if not settings
       download(atom.project.getPath())
 
     atom.workspaceView.command "remote-sync:reload-config", ->
       load()
 
     atom.workspaceView.command 'remote-sync:upload', (e)->
-      return logger.error("#{configPath} not exists") if not settings
+      return logger.error("#{configPath} doesn't exist") if not settings
       [localPath, isFile] = getSelectPath e
       if isFile
         handleSave(localPath)
@@ -52,7 +52,7 @@ module.exports =
         uploadPath(localPath)
 
     atom.workspaceView.command 'remote-sync:download', (e)->
-      return logger.error("#{configPath} not exists") if not settings
+      return logger.error("#{configPath} doesn't exist") if not settings
       [localPath, isFile] = getSelectPath e
       if isFile
         return if settings.isIgnore(localPath)
@@ -62,7 +62,7 @@ module.exports =
         download(localPath)
 
     atom.workspaceView.command 'remote-sync:diff', (e)->
-      return logger.error("#{configPath} not exists") if not settings
+      return logger.error("#{configPath} doesn't exist") if not settings
       [localPath, isFile] = getSelectPath e
       os = require "os" if not os
       targetPath = path.join os.tmpDir(), "remote-sync-"+path.basename(localPath)
@@ -106,8 +106,6 @@ load = ->
       deinit() if editorSubscription
       logger.error "load #{configPath}, #{err}"
       return
-
-    console.log("setting: ", settings)
 
     if settings.uploadOnSave != false
       statusView.update "eye-watch"
@@ -158,7 +156,6 @@ handleSave = (filePath) ->
   if not uploadCmd
     UploadListener = require "./UploadListener"
     uploadCmd = new UploadListener logger
-    console.log("handleSave, createUpload ")
 
   uploadCmd.handleSave(filePath, getTransport())
 
