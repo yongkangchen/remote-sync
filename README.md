@@ -8,6 +8,14 @@ This package provides functionality for:
 
 Currently, both SCP/SFTP and FTP are supported.
 
+## Installation
+
+You can install this like any other Atom package, with one of these methods:
+
+* Open your settings in Atom, select the "packages" tab, search for "remote-sync", and click install on it
+* Run `apm install remote-sync` in a terminal
+* Download or clone this repository to your `~/.atom/packages/` directory
+
 ## Usage
 
 Create file `.remote-sync.json` in your project root with these settings:
