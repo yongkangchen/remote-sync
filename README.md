@@ -7,19 +7,18 @@ Upload your files to remote host after every change.
 Create file `.remote-sync.json` in your project root with these settings:
 
 * `transport` — `scp` for SCP/SFTP, or `ftp` for FTP
-* `hostname` — Remote host address.
-* `port` - Remort port to connect on.
-* `username` — Remote host username.
-* `password` — Remote host password.
-* `keyfile` — Absolute path to SSH key. (only used for SCP)
+* `hostname` — Remote host address
+* `port` - Remort port to connect on (typically 22 for SCP/SFTP, 21 for FTP)
+* `username` — Remote host username
+* `password` — Remote host password
+* `keyfile` — Absolute path to SSH key (only used for SCP)
 * `passphrase` — Passphrase for the SSH key (only used for SCP)
-* `target` — Target directory on remote host.
-* `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns
-  to ignore.
-* `uploadOnSave` — Optional, default: true
+* `useAgent` — Whether or not to use an agent process, default: false (only used for SCP)
+* `target` — Target directory on remote host
+* `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns to ignore.
+* `uploadOnSave` — Whether or not to upload the current file when saved, default: true
 
-For example:
-
+SCP example:
 ```json
 {
   "transport": "scp",
@@ -36,7 +35,7 @@ For example:
 }
 ```
 
-useAgent example:
+SCP `useAgent` example:
 ```json
 {
   "transport": "scp",
@@ -65,16 +64,23 @@ FTP example:
   ]
 }
 ```
-## Usage Example
 
-Create folder, then create a file name called, `.remote-sync.json`.
+## Usage
 
-in ATOM editor press command + shitf + p, 
+## Existing project
 
-input `remote sync Reload config`
+1. Add a file named `.remote-sync.json` to your project, with the contents above
+2. open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
+3. Type in `remote sync reload config` and press enter
 
-in ATOM editor press command + shitf + p, 
+That's it!
 
-input `remote sync Reload download all`
+### From scratch, with a remote server
 
-After those steps, you can upload files after files was changed.
+1. Create a folder, then create a file named `.remote-sync.json` with the contents above
+2. In the Atom editor, open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
+3. Type in `remote sync reload config` and press enter
+4. Open the command palette again
+5. Input `remote sync download all`
+
+The package will download all of the files from the remote server for you.
