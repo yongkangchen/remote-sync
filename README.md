@@ -1,6 +1,12 @@
 # Atom Remote Sync
 
-Upload your files to remote host after every change.
+This package provides functionality for:
+
+* Uploading changes automatically when you save a file
+* Uploading/downloading files to/from the server
+* Displaying diffs between the local and remote files with your favourite diff tool
+
+Currently, both SCP/SFTP and FTP are supported.
 
 ## Usage
 
@@ -15,8 +21,9 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `passphrase` — Passphrase for the SSH key (only used for SCP)
 * `useAgent` — Whether or not to use an agent process, default: false (only used for SCP)
 * `target` — Target directory on remote host
-* `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns to ignore.
+* `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: true
+* `difftoolPath` — The path to your diff tool executable (optional)
 
 SCP example:
 ```json
@@ -65,19 +72,19 @@ FTP example:
 }
 ```
 
-## Usage
+## Usage example
 
-## Existing project
+### Existing project
 
 1. Add a file named `.remote-sync.json` to your project, with the contents above
-2. open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
+2. Open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
 3. Type in `remote sync reload config` and press enter
 
 That's it!
 
 ### From scratch, with a remote server
 
-1. Create a folder, then create a file named `.remote-sync.json` with the contents above
+1. Create a folder for your project, and create a file named `.remote-sync.json` in it with the contents above
 2. In the Atom editor, open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
 3. Type in `remote sync reload config` and press enter
 4. Open the command palette again
