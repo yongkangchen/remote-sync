@@ -24,7 +24,7 @@ class ScpTransport
     @_getConnection (err, c) =>
       return errorHandler err if err
 
-      @logger.log "Uploading: #{localFilePath} to #{targetFilePath}"
+      end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ... "
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
@@ -35,7 +35,7 @@ class ScpTransport
           sftp.fastPut localFilePath, targetFilePath, (err) =>
             return errorHandler err if err
 
-            @logger.log "Uploaded: #{localFilePath} to #{targetFilePath}"
+            end()
 
             sftp.end()
             callback()
@@ -53,7 +53,7 @@ class ScpTransport
     @_getConnection (err, c) =>
       return errorHandler err if err
 
-      @logger.log "Downloading: #{targetFilePath} to #{localFilePath}"
+      end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ... "
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
@@ -64,7 +64,7 @@ class ScpTransport
           sftp.fastGet targetFilePath, localFilePath, (err) =>
             return errorHandler err if err
 
-            @logger.log "Downloaded: #{targetFilePath} to #{localFilePath}"
+            end()
 
             sftp.end()
             callback?()

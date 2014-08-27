@@ -12,22 +12,35 @@ class Logger
         title: @title
 
     @panel.attach() if @panel.parents('html').length == 0
-
-    @panel.add new PlainMessageView
+    msg = new PlainMessageView
       message: message
       className: className
+
+    @panel.add msg
 
     @panel.setSummary
       summary: message
       className: className
 
     @panel.body.scrollTop(1e10)
+    msg
 
   log: (message) ->
+    date = new Date
+    startTime = date.getTime()
+    message = "[#{date.toLocaleTimeString()}] #{message}"
     if atom.config.get("remote-sync.logToConsole")
       console.log message
+      ()->
+        console.log "#{message} Complete (#{Date.now() - startTime}ms)"
     else
-      @showInPanel message,"text-info"
+      msg = @showInPanel message, "text-info"
+      ()=>
+          endMsg = "Complete (#{Date.now() - startTime}ms)"
+          msg.append endMsg
+          @panel.setSummary
+            summary: "#{message} #{endMsg}"
+            className: "text-info"
 
   error: (message) ->
     @showInPanel "#{message}","text-error"
