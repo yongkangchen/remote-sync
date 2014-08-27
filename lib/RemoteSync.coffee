@@ -37,58 +37,70 @@ module.exports =
         statusView.update "question", "Couldn't find config"
 
     atom.workspaceView.command "remote-sync:download-all", ->
-      return logger.error("#{configPath} doesn't exist") if not settings
+      return if checkSetting()
       download(atom.project.getPath())
 
     atom.workspaceView.command "remote-sync:reload-config", ->
       load()
 
-    atom.workspaceView.command 'remote-sync:upload', (e)->
-      return logger.error("#{configPath} doesn't exist") if not settings
-      [localPath, isFile] = getSelectPath e
-      if isFile
-        handleSave(localPath)
-      else
-        uploadPath(localPath)
+    atom.workspaceView.command 'remote-sync:upload-folder', (e)->
+      return if checkSetting()
+      uploadPath($(e.target).view().getPath())
 
-    atom.workspaceView.command 'remote-sync:download', (e)->
-      return logger.error("#{configPath} doesn't exist") if not settings
-      [localPath, isFile] = getSelectPath e
-      if isFile
-        return if settings.isIgnore(localPath)
-        localPath = atom.project.relativize(localPath)
-        getTransport().download(path.join(settings.target, localPath).replace(/\\/g, "/"))
-      else
-        download(localPath)
+    atom.workspaceView.command 'remote-sync:upload-file', (e)->
+      return if checkSetting()
+      handleSave($(e.target).view().getPath())
 
-    atom.workspaceView.command 'remote-sync:diff', (e)->
-      return logger.error("#{configPath} doesn't exist") if not settings
-      [localPath, isFile] = getSelectPath e
+    atom.workspaceView.command 'remote-sync:download-file', (e)->
+      return if checkSetting()
+      localPath = $(e.target).view().getPath()
+      return if settings.isIgnore(localPath)
+      realPath = atom.project.relativize(localPath)
+      realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
+      getTransport().download(realPath)
+
+    atom.workspaceView.command 'remote-sync:download-folder', (e)->
+      return if checkSetting()
+      download($(e.target).view().getPath())
+
+    atom.workspaceView.command 'remote-sync:diff-file', (e)->
+      return if checkSetting()
+      localPath = $(e.target).view().getPath()
+      return if settings.isIgnore(localPath)
+      realPath = atom.project.relativize(localPath)
+      realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
+
       os = require "os" if not os
-      targetPath = path.join os.tmpDir(), "remote-sync-"+path.basename(localPath)
-      diff = ->
-        diffCmd = atom.config.get('remote-sync.difftoolCommand')
-        exec    = require("child_process").exec if not exec
-        exec "#{diffCmd} #{localPath} #{targetPath}", (err)->
-          logger.error """Check the field value of difftool Command in your settings (remote-sync).
-           Command error: #{err}
-           command: #{diffCmd} #{localPath} #{targetPath}
-           """
+      targetPath = path.join os.tmpDir(), "remote-sync"
 
-      if isFile
-        return if settings.isIgnore(localPath)
-        getTransport().download(path.join(settings.target, atom.project.relativize(localPath)).replace(/\\/g, "/"), targetPath, diff)
-      else
-        download(localPath, targetPath, diff)
+      getTransport().download realPath, targetPath, ->
+        diff localPath, targetPath
 
-findFileParent = (node) ->
-  parent = node.parent()
-  return parent if parent.is('.file') or parent.is('.directory')
-  findFileParent(parent)
+    atom.workspaceView.command 'remote-sync:diff-folder', (e)->
+      return if checkSetting()
+      localPath = $(e.target).view().getPath()
+      os = require "os" if not os
+      targetPath = path.join os.tmpDir(), "remote-sync"
 
-getSelectPath = (e) ->
-    selected = findFileParent($(e.target))
-    [selected.view().getPath(), selected.is('.file')]
+      download localPath, targetPath, ->
+        diff localPath, targetPath
+
+diff = (localPath, targetPath) ->
+  targetPath = path.join(targetPath, path.basename(localPath))
+  diffCmd = atom.config.get('remote-sync.difftoolCommand')
+  exec    = require("child_process").exec if not exec
+  exec "#{diffCmd} #{localPath} #{targetPath}", (err)->
+    return if not err
+    logger.error """Check [difftool Command] in your settings (remote-sync).
+     Command error: #{err}
+     command: #{diffCmd} #{localPath} #{targetPath}
+    """
+
+checkSetting = ->
+  if not settings
+    logger.error("#{configPath} doesn't exist")
+    return true
+  return false
 
 download = (localPath, targetPath, callback)->
   if not downloadCmd

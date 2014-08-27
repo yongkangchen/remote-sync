@@ -1,6 +1,11 @@
 'context-menu':
-  '.tree-view > li.directory':
+  '.tree-view .file':
     'Remote Sync':
-      'upload': 'remote-sync:upload'
-      'download': 'remote-sync:download'
-      'diff': 'remote-sync:diff'
+      'Upload File': 'remote-sync:upload-file'
+      'Download File': 'remote-sync:download-file'
+      'Diff File': 'remote-sync:diff-file'
+  '.tree-view .header.list-item':
+    'Remote Sync':
+      'Upload Folder': 'remote-sync:upload-folder'
+      'Download Folder': 'remote-sync:download-folder'
+      'Diff Folder': 'remote-sync:diff-folder'
