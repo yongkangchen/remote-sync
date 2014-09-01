@@ -84,7 +84,6 @@ class ScpTransport
           return callback err if err
 
           list.forEach (item, i) ->
-            console.log item
             files.push dir + "/" + item.name if item.type is "-" and not isIgnore(item.name, dir)
             directory dir + "/" + item.name if item.type is "d"
 
