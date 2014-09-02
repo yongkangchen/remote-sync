@@ -34,7 +34,7 @@ module.exports =
       if exists
         load()
       else
-        statusView.update "question", "Couldn't find config"
+        statusView.update "question", "Couldn't find config."
 
     atom.workspaceView.command "remote-sync:download-all", ->
       return if checkSetting()
@@ -109,7 +109,7 @@ download = (localPath, targetPath, callback)->
 
 minimatch = null
 load = ->
-  fs.readFile configPath,"utf8", (err, data)->
+  fs.readFile configPath,"utf8", (err, data) ->
     return logger.error err if err
 
     try
@@ -119,11 +119,18 @@ load = ->
       logger.error "load #{configPath}, #{err}"
       return
 
+    if settings.transport is "scp" or settings.transport is "sftp"
+      transportText = "SFTP"
+    else if settings.transport is "ftp"
+      transportText = "FTP"
+    else
+      transportText = null
+
     if settings.uploadOnSave != false
-      statusView.update "eye-watch"
+      statusView.update "eye-watch", null, transportText
       init() if not editorSubscription
     else
-      statusView.update "eye-unwatch", "uploadOnSave disabled."
+      statusView.update "eye-unwatch", "uploadOnSave disabled.", transportText
       unsubscript if editorSubscription
 
     if settings.ignore and not Array.isArray settings.ignore

@@ -3,7 +3,7 @@
 module.exports =
 class StatusView extends View
   @content: ->
-    @a href: '#', ' SFTP'
+    @a ' Sync'
 
   initialize: ->
     @on 'click', ->
@@ -18,7 +18,7 @@ class StatusView extends View
     else
       @subscribe(atom.packages.once('activated', @attach))
 
-  update: (iconName, tips) =>
-    this.element.className = "inline-block icon icon-#{iconName}"
-    tips = "" if not tips
-    @setTooltip(tips+" Click to reload config.")
+  update: (iconName, tips, text) =>
+    @element.className = "inline-block icon icon-#{iconName}" if iconName
+    @setTooltip(if tips then tips + " Click to reload config." else "Click to reload config.")
+    @text(if text then " Sync: " + text else " Sync")
