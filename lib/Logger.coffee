@@ -36,7 +36,7 @@ class Logger
     else
       msg = @showInPanel message, "text-info"
       ()=>
-          endMsg = "Complete (#{Date.now() - startTime}ms)"
+          endMsg = " Complete (#{Date.now() - startTime}ms)"
           msg.append endMsg
           @panel.setSummary
             summary: "#{message} #{endMsg}"

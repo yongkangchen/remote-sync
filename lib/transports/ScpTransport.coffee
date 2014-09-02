@@ -24,7 +24,7 @@ class ScpTransport
     @_getConnection (err, c) =>
       return errorHandler err if err
 
-      end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ... "
+      end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ..."
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
@@ -53,7 +53,7 @@ class ScpTransport
     @_getConnection (err, c) =>
       return errorHandler err if err
 
-      end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ... "
+      end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ..."
 
       c.sftp (err, sftp) =>
         return errorHandler err if err
