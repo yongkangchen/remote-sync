@@ -7,6 +7,8 @@ module.exports =
     minimatch = require "minimatch" if not minimatch
     async = require "async" if not async
 
+    logger.log "Downloading all files: #{path}"
+
     transport.fetchFileTree path, (err, files) ->
       return logger.error err if err
 
