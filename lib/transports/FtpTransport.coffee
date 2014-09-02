@@ -75,15 +75,22 @@ class ScpTransport
     @_getConnection (err, c) ->
       return callback err if err
 
-      c.list targetPath, (err, list) ->
-        return callback err if err
+      files = []
+      directories = 0
 
-        files = []
-        for file, i in list
-          if file.type is '-' and not isIgnore(file.name, targetPath)
-            files.push targetPath + "/" + file.name
+      directory = (dir) ->
+        directories++
+        c.list dir, (err, list) ->
+          return callback err if err
 
-        callback null, files
+          list.forEach (item, i) ->
+            files.push dir + "/" + item.name if item.type is "-" and not isIgnore(item.name, dir)
+            directory dir + "/" + item.name if item.type is "d"
+
+          directories--
+          callback null, files  if directories is 0
+
+      directory(targetPath)
 
   _getConnection: (callback) ->
     {hostname, port, username, password, keyfile, useAgent, passphrase} = @settings
