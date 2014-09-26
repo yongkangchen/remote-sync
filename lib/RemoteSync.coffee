@@ -45,15 +45,15 @@ module.exports =
 
     atom.workspaceView.command 'remote-sync:upload-folder', (e)->
       return if checkSetting()
-      uploadPath($(e.target).view().getPath())
+      uploadPath(getEventPath(e))
 
     atom.workspaceView.command 'remote-sync:upload-file', (e)->
       return if checkSetting()
-      handleSave($(e.target).view().getPath())
+      handleSave(getEventPath(e))
 
     atom.workspaceView.command 'remote-sync:download-file', (e)->
       return if checkSetting()
-      localPath = $(e.target).view().getPath()
+      localPath = getEventPath(e)
       return if settings.isIgnore(localPath)
       realPath = atom.project.relativize(localPath)
       realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
@@ -61,11 +61,11 @@ module.exports =
 
     atom.workspaceView.command 'remote-sync:download-folder', (e)->
       return if checkSetting()
-      download($(e.target).view().getPath())
+      download(getEventPath(e))
 
     atom.workspaceView.command 'remote-sync:diff-file', (e)->
       return if checkSetting()
-      localPath = $(e.target).view().getPath()
+      localPath = getEventPath(e)
       return if settings.isIgnore(localPath)
       realPath = atom.project.relativize(localPath)
       realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
@@ -78,7 +78,7 @@ module.exports =
 
     atom.workspaceView.command 'remote-sync:diff-folder', (e)->
       return if checkSetting()
-      localPath = $(e.target).view().getPath()
+      localPath = getEventPath(e)
       os = require "os" if not os
       targetPath = path.join os.tmpDir(), "remote-sync"
 
@@ -208,3 +208,6 @@ getTransport = ->
   else if settings.transport is 'ftp'
     FtpTransport = require "./transports/FtpTransport"
     transport = new FtpTransport logger, settings
+
+getEventPath = (e)->
+  $(e.target).closest('.file, .directory, .tab')[0].getPath()
