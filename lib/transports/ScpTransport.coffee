@@ -70,10 +70,12 @@ class ScpTransport
             callback?()
 
   fetchFileTree: (localPath, callback) ->
-    targetPath = path.join(@settings.target,
+    {isIgnore, target} = @settings
+
+    targetPath = path.join(target,
                           path.relative(atom.project.getPath(), localPath))
                           .replace(/\\/g, "/")
-    {isIgnore} = @settings
+
 
     @_getConnection (err, c) ->
       return callback err if err
@@ -85,7 +87,7 @@ class ScpTransport
         result.on "data", (data) -> buf += data.toString()
         result.on "end", ->
           files = buf.split("\n").filter((f) ->
-            return f and not isIgnore(f, targetPath))
+            return f and not isIgnore(f, target))
 
           callback null, files
 
