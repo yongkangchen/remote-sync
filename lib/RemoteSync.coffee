@@ -86,7 +86,7 @@ module.exports =
         diff localPath, targetPath
 
 diff = (localPath, targetPath) ->
-  targetPath = path.join(targetPath, path.basename(localPath))
+  targetPath = path.join(targetPath, atom.project.relativize(localPath))
   diffCmd = atom.config.get('remote-sync.difftoolCommand')
   exec    = require("child_process").exec if not exec
   exec "#{diffCmd} #{localPath} #{targetPath}", (err)->
