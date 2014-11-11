@@ -6,6 +6,7 @@
       'Diff File': 'remote-sync:diff-file'
   '.tree-view .header.list-item':
     'Remote Sync':
+      'Configure': 'remote-sync:configure'
       'Upload Folder': 'remote-sync:upload-folder'
       'Download Folder': 'remote-sync:download-folder'
       'Diff Folder': 'remote-sync:diff-folder'
