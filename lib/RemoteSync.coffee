@@ -15,6 +15,7 @@ file = null
 settings = null
 editorSubscription = null
 bufferSubscriptionList = {}
+bufferSubscriptionListKey = 0
 transport = null
 statusView = null
 
@@ -126,12 +127,12 @@ load = ->
     else
       transportText = null
 
+    unsubscript() if editorSubscription
     if settings.uploadOnSave != false
       statusView.update "eye-watch", null, transportText
       init() if not editorSubscription
     else
       statusView.update "eye-unwatch", "uploadOnSave disabled.", transportText
-      unsubscript if editorSubscription
 
     if settings.ignore and not Array.isArray settings.ignore
       settings.ignore = [settings.ignore]
@@ -156,18 +157,18 @@ load = ->
         transport.settings = settings
 
 init = ->
-  editorSubscription = atom.workspace.eachEditor (editor) ->
-    buffer = editor.getBuffer()
-    bufferSavedSubscription = buffer.on 'after-will-be-saved', ->
-      return unless buffer.isModified()
-      f = buffer.getPath()
+  editorSubscription = atom.workspace.observeTextEditors (editor) ->
+    bufferSavedSubscription = editor.onDidSave (e) ->
+      f = e.path
       return unless atom.project.contains(f)
       handleSave(f)
+      load() if f == configPath
 
-    bufferSubscriptionList[bufferSavedSubscription] = true
-    buffer.on "destroyed", ->
-      bufferSavedSubscription.off()
-      delete bufferSubscriptionList[bufferSavedSubscription]
+    key = bufferSubscriptionListKey++
+    bufferSubscriptionList[key] = bufferSavedSubscription
+    editor.onDidDestroy ->
+      delete bufferSubscriptionList[key]
+      bufferSavedSubscription.dispose()
 
 handleSave = (filePath) ->
   return if settings.isIgnore(filePath)
@@ -191,10 +192,11 @@ unsubscript = ->
   editorSubscription.off()
   editorSubscription = null
 
-  for bufferSavedSubscription, v of bufferSubscriptionList
-    bufferSavedSubscription.off()
+  for k, bufferSavedSubscription of bufferSubscriptionList
+    bufferSavedSubscription.dispose()
 
   bufferSubscriptionList = {}
+  bufferSubscriptionListKey = 0
 
 deinit = ->
   unsubscript()
