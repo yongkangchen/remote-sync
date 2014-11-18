@@ -18,6 +18,11 @@ class Host
       @privateKeyPath = settings.keyfile
       @passphrase = settings.passphrase
       @useAgent = settings.useAgent
+
+      if @port
+        @port = @port.toString()
+      else
+        @port = ""
     catch err
       console.log "load #{configPath}, #{err}"
 

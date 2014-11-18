@@ -53,7 +53,7 @@ class ConfigView extends View
     @cancelButton.on 'click', => @detach()
 
     @hostname.setText(@host.hostname ? "")
-    @port.setText(@host.port ? "")
+    @port.setText(@host.port)
     @targetdir.setText(@host.targetdir ? "/")
     @username.setText(@host.username ? "")
     @password.setText(@host.password ? "")
@@ -66,7 +66,7 @@ class ConfigView extends View
       @authenticationButtonsBlock.hide()
       @privateKeyBlock.hide()
       @passwordBlock.show()
-      @port.setText(@host.port ? "")
+      @port.setText(@host.port)
       if @host.transport isnt "ftp"
         @port.setText("21")
 
@@ -75,7 +75,7 @@ class ConfigView extends View
       @ftpTransportButton.toggleClass('selected', false)
       @authenticationButtonsBlock.show()
       @privateKeyButton.click()
-      @port.setText(@host.port ? "")
+      @port.setText(@host.port)
       if @host.transport isnt "scp"
         @port.setText("22")
 
