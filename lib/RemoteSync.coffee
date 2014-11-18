@@ -18,6 +18,9 @@ bufferSubscriptionList = {}
 bufferSubscriptionListKey = 0
 transport = null
 statusView = null
+HostView = null
+HostModel = null
+EventEmitter = null
 
 uploadCmd = null
 downloadCmd = null
@@ -85,6 +88,17 @@ module.exports =
 
       download localPath, targetPath, ->
         diff localPath, targetPath
+
+    atom.workspaceView.command 'remote-sync:configure', (e)->
+      HostView ?= require './view/host-view'
+      HostModel ?= require './model/host'
+      EventEmitter ?= require("events").EventEmitter
+      emitter = new EventEmitter()
+      emitter.on "configured", () =>
+        load()
+      host = new HostModel(configPath, emitter)
+      view = new HostView(host)
+      view.attach()
 
 diff = (localPath, targetPath) ->
   targetPath = path.join(targetPath, atom.project.relativize(localPath))
