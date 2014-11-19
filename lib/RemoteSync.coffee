@@ -94,7 +94,7 @@ module.exports =
       HostModel ?= require './model/host'
       EventEmitter ?= require("events").EventEmitter
       emitter = new EventEmitter()
-      emitter.on "configured", () =>
+      emitter.on "configured", () ->
         load()
       host = new HostModel(configPath, emitter)
       view = new HostView(host)

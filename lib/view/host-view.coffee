@@ -1,15 +1,13 @@
 {$, View, TextEditorView} = require 'atom'
-fs = require 'fs-plus'
 
 module.exports =
 class ConfigView extends View
   @content: ->
     @div class: 'remote-sync overlay from-top', =>
-      @label 'Transport'
-      @div class: 'block', outlet: 'transportBlock', =>
-        @div class: 'btn-group', =>
-          @button class: 'btn  selected', outlet: 'scpTransportButton', 'SCP/SFTP'
-          @button class: 'btn', outlet: 'ftpTransportButton', 'FTP'
+      @div class:'block', =>
+        @div class: 'btn-group', outlet: 'transportGroup', =>
+          @button class: 'btn  selected', targetBlock: 'authenticationButtonsBlock', 'SCP/SFTP'
+          @button class: 'btn', targetBlock:'ftpPasswordBlock', 'FTP'
 
       @label 'Hostname'
       @subview 'hostname', new TextEditorView(mini: true)
@@ -18,121 +16,90 @@ class ConfigView extends View
       @subview 'port', new TextEditorView(mini: true)
 
       @label 'Target directory'
-      @subview 'targetdir', new TextEditorView(mini: true)
+      @subview 'target', new TextEditorView(mini: true)
 
       @label 'Username'
       @subview 'username', new TextEditorView(mini: true)
 
       @div class: 'block', outlet: 'authenticationButtonsBlock', =>
         @div class: 'btn-group', =>
-          @button class: 'btn  selected', outlet: 'privateKeyButton', 'Private key'
-          @button class: 'btn', outlet: 'passwordButton', 'Password'
-          @button class: 'btn', outlet: 'userAgentButton', 'User agent'
+          @a class: 'btn  selected', targetBlock: 'privateKeyBlock', 'privatekey'
+          @a class: 'btn', targetBlock: 'passwordBlock', 'password'
+          @a class: 'btn', outlet: 'userAgentButton', 'useAgent'
 
-      @div class: 'block', outlet: 'privateKeyBlock', =>
-        @label 'Private key path'
-        @subview 'privateKeyPath', new TextEditorView(mini: true)
-        @label 'Private key passphrase (leave blank if unencrypted)'
-        @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
+        @div class: 'block', outlet: 'privateKeyBlock', =>
+          @label 'Keyfile path'
+          @subview 'privateKeyPath', new TextEditorView(mini: true)
+          @label 'Passphrase (leave blank if private key is unencrypted)'
+          @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
 
-      @div class: 'block', outlet: 'passwordBlock', =>
+        @div class: 'block', outlet: 'passwordBlock', style: 'display:none', =>
+          @label 'Password'
+          @subview 'password', new TextEditorView(mini: true)
+
+      @div class: 'block', outlet: 'ftpPasswordBlock', style: 'display:none', =>
         @label 'Password'
-        @subview 'password', new TextEditorView(mini: true)
 
-      @div class: 'block', outlet: 'buttonBlock', =>
-        @button class: 'inline-block btn pull-right', outlet: 'cancelButton', 'Cancel'
-        @button class: 'inline-block btn pull-right', outlet: 'saveButton', 'Save'
+      @div class: 'block pull-right', =>
+        @button class: 'inline-block-tight btn', outlet: 'cancelButton', 'Cancel'
+        @button class: 'inline-block-tight btn', outlet: 'saveButton', 'Save'
 
   initialize: (@host) ->
-    console.log "initialize"
-    console.log @host
     @on 'core:confirm', => @confirm()
     @saveButton.on 'click', => @confirm()
 
     @on 'core:cancel', => @detach()
     @cancelButton.on 'click', => @detach()
 
-    @hostname.setText(@host.hostname ? "")
-    @port.setText(@host.port)
-    @targetdir.setText(@host.targetdir ? "/")
-    @username.setText(@host.username ? "")
-    @password.setText(@host.password ? "")
-    @privateKeyPath.setText(@host.privateKeyPath ? "")
-    @privateKeyPassphrase.setText(@host.passphrase ? "")
+    @transportGroup.on 'click', (e)=>
+      e.preventDefault()
+      btn = $(e.target)
+      targetBlock = btn.addClass('selected').siblings('.selected').removeClass('selected').attr("targetBlock")
+      this[targetBlock].hide() if targetBlock
 
-    @ftpTransportButton.on 'click', =>
-      @ftpTransportButton.toggleClass('selected', true)
-      @scpTransportButton.toggleClass('selected', false)
-      @authenticationButtonsBlock.hide()
-      @privateKeyBlock.hide()
-      @passwordBlock.show()
-      @port.setText(@host.port)
-      if @host.transport isnt "ftp"
-        @port.setText("21")
+      targetBlock = btn.attr("targetBlock")
+      this[targetBlock].show() if targetBlock
+      @host.transport = btn.text().split("/")[0].toLowerCase()
+      if @host.transport == "scp"
+        @passwordBlock.append(@password)
+      else
+        @ftpPasswordBlock.append(@password)
 
-    @scpTransportButton.on 'click', =>
-      @scpTransportButton.toggleClass('selected', true)
-      @ftpTransportButton.toggleClass('selected', false)
-      @authenticationButtonsBlock.show()
-      @privateKeyButton.click()
-      @port.setText(@host.port)
-      if @host.transport isnt "scp"
-        @port.setText("22")
+    $('.btn-group .btn', @authenticationButtonsBlock).on 'click', (e)=>
+      e.preventDefault()
+      targetBlock = $(e.target).addClass('selected').siblings('.selected').removeClass('selected').attr("targetBlock")
+      this[targetBlock].hide() if targetBlock
 
-    @privateKeyButton.on 'click', =>
-      @privateKeyButton.toggleClass('selected', true)
-      @userAgentButton.toggleClass('selected', false)
-      @passwordButton.toggleClass('selected', false)
-      @passwordBlock.hide()
-      @privateKeyBlock.show()
-      @privateKeyPath.focus()
-
-    @passwordButton.on 'click', =>
-      @privateKeyButton.toggleClass('selected', false)
-      @userAgentButton.toggleClass('selected', false)
-      @passwordButton.toggleClass('selected', true)
-      @privateKeyBlock.hide()
-      @passwordBlock.show()
-      @password.focus()
-
-    @userAgentButton.on 'click', =>
-      @privateKeyButton.toggleClass('selected', false)
-      @userAgentButton.toggleClass('selected', true)
-      @passwordButton.toggleClass('selected', false)
-      @passwordBlock.hide()
-      @privateKeyBlock.hide()
+      targetBlock = $(e.target).attr("targetBlock")
+      this[targetBlock].show().find(".editor").first().focus() if targetBlock
 
   attach: ->
     atom.workspaceView.append(this)
-    @scpTransportButton.click()
+
+    @find(".editor").each (i, editor)=>
+      dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
+      $(editor).view().setText(@host[dataName] or "")
+
+    $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click()
     if @host.transport is "scp"
-      @scpTransportButton.click()
-      if @host.useAgent
-        @userAgentButton.click()
-      else if @host.privateKeyPath
-        @privateKeyButton.click()
-      else
-        @passwordButton.click()
-    else
-      @ftpTransportButton.click()
+      $('.btn-group .btn', @authenticationButtonsBlock).each (i, btn)=>
+        btn = $(btn)
+        return unless @host[btn.text()]
+        btn.click()
+        return false
 
   confirm: ->
-    @host.hostname = @hostname.getText()
-    @host.port = @port.getText()
-    @host.targetdir = @targetdir.getText()
-    @host.username = @username.getText()
-    @host.privateKeyPath = ""
-    @host.passphrase = ""
-    @host.password = if @passwordButton.hasClass('selected') then @password.getText() else ""
-    @host.useAgent = false
-    if @scpTransportButton.hasClass('selected')
-      @host.transport = "scp"
-      if @privateKeyButton.hasClass('selected')
-        @host.privateKeyPath = fs.absolute(@privateKeyPath.getText())
-        @host.passphrase = @privateKeyPassphrase.getText()
-      else if @userAgentButton.hasClass('selected')
-        @host.useAgent = true
+    @find(".editor").each (i, editor)=>
+      dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
+      view = $(editor).view()
+      val = view.getText()
+      val = undefined if val == "" or view.parent().isHidden() or view.parent().parent().isHidden()
+      @host[dataName] = val
+
+    if @host.transport == "scp" and @userAgentButton.hasClass('selected')
+      @host.useAgent = true
     else
-      @host.transport = "ftp"
+      @host.useAgent = undefined
+
     @host.saveJSON()
     @detach()
