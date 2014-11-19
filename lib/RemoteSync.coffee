@@ -226,4 +226,6 @@ getTransport = ->
     transport = new FtpTransport logger, settings
 
 getEventPath = (e)->
-  $(e.target).closest('.file, .directory, .tab')[0].getPath()
+  target = $(e.target).closest('.file, .directory, .tab')[0]
+  target = atom.workspace.getActiveTextEditor() if not target
+  target.getPath()
