@@ -27,10 +27,10 @@ class ScpTransport
 
       end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ..."
 
-      c.mkdir path.dirname(targetFilePath), true, (err) =>
+      c.mkdir path.dirname(targetFilePath), true, (err) ->
         return errorHandler err if err
 
-        c.put localFilePath, targetFilePath, (err) =>
+        c.put localFilePath, targetFilePath, (err) ->
           return errorHandler err if err
 
           end()
@@ -53,15 +53,15 @@ class ScpTransport
       end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ..."
 
       mkdirp = require "mkdirp" if not mkdirp
-      mkdirp path.dirname(localFilePath), (err) =>
+      mkdirp path.dirname(localFilePath), (err) ->
         return errorHandler err if err
 
-        c.get targetFilePath, (err, readableStream) =>
+        c.get targetFilePath, (err, readableStream) ->
           return errorHandler err if err
 
           fs = require "fs-plus" if not fs
           writableStream = fs.createWriteStream(localFilePath)
-          writableStream.on "unpipe", =>
+          writableStream.on "unpipe", ->
             end()
             callback?()
           readableStream.pipe writableStream
@@ -93,7 +93,7 @@ class ScpTransport
       directory(targetPath)
 
   _getConnection: (callback) ->
-    {hostname, port, username, password, keyfile, useAgent, passphrase} = @settings
+    {hostname, port, username, password} = @settings
 
     if @connection
       return callback null, @connection

@@ -26,13 +26,13 @@ class ScpTransport
 
       end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ..."
 
-      c.sftp (err, sftp) =>
+      c.sftp (err, sftp) ->
         return errorHandler err if err
 
-        c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) =>
+        c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) ->
           return errorHandler err if err
 
-          sftp.fastPut localFilePath, targetFilePath, (err) =>
+          sftp.fastPut localFilePath, targetFilePath, (err) ->
             return errorHandler err if err
 
             end()
@@ -55,13 +55,13 @@ class ScpTransport
 
       end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ..."
 
-      c.sftp (err, sftp) =>
+      c.sftp (err, sftp) ->
         return errorHandler err if err
         mkdirp = require "mkdirp" if not mkdirp
-        mkdirp path.dirname(localFilePath), (err) =>
+        mkdirp path.dirname(localFilePath), (err) ->
           return errorHandler err if err
 
-          sftp.fastGet targetFilePath, localFilePath, (err) =>
+          sftp.fastGet targetFilePath, localFilePath, (err) ->
             return errorHandler err if err
 
             end()
