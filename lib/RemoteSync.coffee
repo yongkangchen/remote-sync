@@ -30,7 +30,7 @@ module.exports =
     Logger = require "./Logger"
     logger = new Logger "Remote Sync"
 
-    statusView = new (require './StatusView')
+    statusView = new (require './view/StatusView')
     #TODO: support project path change
     configPath = path.join atom.project.getPath(), SETTINGS_FILE_NAME
 
