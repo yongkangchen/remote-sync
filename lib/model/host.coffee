@@ -15,6 +15,7 @@ class Host
 
     @port?= ""
     @port = @port.toString()
+    @ignore = @ignore.join(", ") if @ignore
 
   saveJSON: ->
     configPath = @configPath
@@ -23,7 +24,9 @@ class Host
     @configPath = undefined
     @emitter = undefined
 
-    @ignore?= [".git/**"]
+    @ignore?= ".git/**"
+    @ignore = @ignore.split(',')
+    @ignore = (val.trim() for val in @ignore when val)
 
     fs.writeFile configPath, JSON.stringify(this, null, 2), (err) ->
       if err

@@ -18,6 +18,9 @@ class ConfigView extends View
       @label 'Target directory'
       @subview 'target', new TextEditorView(mini: true)
 
+      @label 'Ignore Paths'
+      @subview 'ignore', new TextEditorView(mini: true, placeholderText: "Default: .git/**")
+
       @label 'Username'
       @subview 'username', new TextEditorView(mini: true)
 
@@ -30,8 +33,8 @@ class ConfigView extends View
         @div class: 'block', outlet: 'privateKeyBlock', =>
           @label 'Keyfile path'
           @subview 'privateKeyPath', new TextEditorView(mini: true)
-          @label 'Passphrase (leave blank if private key is unencrypted)'
-          @subview 'privateKeyPassphrase', new TextEditorView(mini: true)
+          @label 'Passphrase'
+          @subview 'privateKeyPassphrase', new TextEditorView(mini: true, placeholderText: "leave blank if private key is unencrypted")
 
         @div class: 'block', outlet: 'passwordBlock', style: 'display:none', =>
           @label 'Password'
@@ -39,6 +42,9 @@ class ConfigView extends View
 
       @div class: 'block', outlet: 'ftpPasswordBlock', style: 'display:none', =>
         @label 'Password'
+
+      @label " uploadOnSave", =>
+        @input type: 'checkbox', outlet: 'uploadOnSave'
 
       @div class: 'block pull-right', =>
         @button class: 'inline-block-tight btn', outlet: 'cancelButton', 'Cancel'
@@ -80,6 +86,7 @@ class ConfigView extends View
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
       $(editor).view().setText(@host[dataName] or "")
 
+    @uploadOnSave.prop('checked', @host.uploadOnSave)
     $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click()
     if @host.transport is "scp"
       $('.btn-group .btn', @authenticationButtonsBlock).each (i, btn)=>
@@ -89,6 +96,7 @@ class ConfigView extends View
         return false
 
   confirm: ->
+    @host.uploadOnSave = @uploadOnSave.prop('checked')
     @find(".editor").each (i, editor)=>
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
       view = $(editor).view()
