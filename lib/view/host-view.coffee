@@ -87,7 +87,7 @@ class ConfigView extends View
       $(editor).view().setText(@host[dataName] or "")
 
     @uploadOnSave.prop('checked', @host.uploadOnSave)
-    $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click()
+    $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click() if @host.transport
     if @host.transport is "scp"
       $('.btn-group .btn', @authenticationButtonsBlock).each (i, btn)=>
         btn = $(btn)
