@@ -28,6 +28,8 @@ class Host
     @ignore = @ignore.split(',')
     @ignore = (val.trim() for val in @ignore when val)
 
+    @transport?="scp"
+
     fs.writeFile configPath, JSON.stringify(this, null, 2), (err) ->
       if err
         console.log("Failed saving file #{configPath}")
