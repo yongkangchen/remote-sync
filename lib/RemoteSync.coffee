@@ -51,6 +51,14 @@ module.exports =
       return if checkSetting()
       uploadPath(getEventPath(e))
 
+    atom.workspaceView.command 'remote-sync:upload-git-change', (e)->
+      return if checkSetting()
+      repo = atom.project.getRepo()
+      return unless repo
+      workingDirectory = repo.getWorkingDirectory()
+      for filePath, status of repo.statuses
+        handleSave(path.join(workingDirectory, filePath))
+
     atom.workspaceView.command 'remote-sync:upload-file', (e)->
       return if checkSetting()
       handleSave(getEventPath(e))
