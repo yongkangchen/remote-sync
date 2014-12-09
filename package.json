@@ -1,6 +1,6 @@
 {
   "name": "remote-sync",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Upload your files to remote host after every change. Both SCP/SFTP and FTP are supported.",
   "license": "MIT",
   "repository": "https://github.com/yongkangchen/remote-sync",
