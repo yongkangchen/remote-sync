@@ -57,7 +57,7 @@ module.exports =
       return unless repo
       workingDirectory = repo.getWorkingDirectory()
       for filePath, status of repo.statuses
-        handleSave(path.join(workingDirectory, filePath))
+        handleSave(path.join(workingDirectory, filePath)) if status != 512
 
     atom.workspaceView.command 'remote-sync:upload-file', (e)->
       return if checkSetting()
