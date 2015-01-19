@@ -83,7 +83,7 @@ class ScpTransport
         c.list dir, (err, list) ->
           return callback err if err
 
-          list.forEach (item, i) ->
+          list?.forEach (item, i) ->
             files.push dir + "/" + item.name if item.type is "-" and not isIgnore(item.name, dir)
             directory dir + "/" + item.name if item.type is "d" and item.name not in [".", ".."]
 
