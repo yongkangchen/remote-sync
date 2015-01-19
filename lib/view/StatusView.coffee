@@ -12,9 +12,9 @@ class StatusView extends View
     @attach()
 
   attach: =>
-    statusBar = atom.workspaceView.statusBar
+    statusBar = atom.views.getView(atom.workspace).querySelector('.status-bar')
     if statusBar
-      statusBar.appendLeft(this)
+      statusBar.addLeftTile item: this
     else
       @subscribe(atom.packages.once('activated', @attach))
 
