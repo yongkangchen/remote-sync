@@ -40,18 +40,18 @@ module.exports =
       else
         statusView.update "question", "Couldn't find config."
 
-    atom.workspaceView.command "remote-sync:download-all", ->
+    atom.commands.add 'atom-workspace', 'remote-sync:download-all', ->
       return if checkSetting()
       download(atom.project.getPath())
 
-    atom.workspaceView.command "remote-sync:reload-config", ->
+    atom.commands.add 'atom-workspace', 'remote-sync:reload-config', ->
       load()
 
-    atom.workspaceView.command 'remote-sync:upload-folder', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:upload-folder', (e)->
       return if checkSetting()
       uploadPath(getEventPath(e))
 
-    atom.workspaceView.command 'remote-sync:upload-git-change', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:upload-git-change', (e)->
       return if checkSetting()
       repo = atom.project.getRepo()
       return unless repo
@@ -59,11 +59,11 @@ module.exports =
       for filePath, status of repo.statuses
         handleSave(path.join(workingDirectory, filePath)) if status != 512
 
-    atom.workspaceView.command 'remote-sync:upload-file', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:upload-file', (e)->
       return if checkSetting()
       handleSave(getEventPath(e))
 
-    atom.workspaceView.command 'remote-sync:download-file', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:download-file', (e)->
       return if checkSetting()
       localPath = getEventPath(e)
       return if settings.isIgnore(localPath)
@@ -71,11 +71,11 @@ module.exports =
       realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
       getTransport().download(realPath)
 
-    atom.workspaceView.command 'remote-sync:download-folder', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:download-folder', (e)->
       return if checkSetting()
       download(getEventPath(e))
 
-    atom.workspaceView.command 'remote-sync:diff-file', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:diff-file', (e)->
       return if checkSetting()
       localPath = getEventPath(e)
       return if settings.isIgnore(localPath)
@@ -88,7 +88,7 @@ module.exports =
       getTransport().download realPath, targetPath, ->
         diff localPath, targetPath
 
-    atom.workspaceView.command 'remote-sync:diff-folder', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:diff-folder', (e)->
       return if checkSetting()
       localPath = getEventPath(e)
       os = require "os" if not os
@@ -97,7 +97,7 @@ module.exports =
       download localPath, targetPath, ->
         diff localPath, targetPath
 
-    atom.workspaceView.command 'remote-sync:configure', (e)->
+    atom.commands.add 'atom-workspace', 'remote-sync:configure', (e)->
       HostView ?= require './view/host-view'
       HostModel ?= require './model/host'
       EventEmitter ?= require("events").EventEmitter

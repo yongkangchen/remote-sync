@@ -7,7 +7,7 @@ class StatusView extends View
 
   initialize: ->
     @on 'click', ->
-      atom.workspaceView.trigger 'remote-sync:configure'
+      atom.commands.dispatch atom.views.getView(atom.workspace), 'remote-sync:configure'
       false
     @attach()
 
