@@ -20,5 +20,5 @@ class StatusView extends View
 
   update: (iconName, tips, text) =>
     @element.className = "inline-block icon icon-#{iconName}" if iconName
-    @setTooltip(if tips then tips + " Click to reload config." else "Click to reload config.")
+    @setTooltip(if tips then tips + " Click to configure." else "Click to configure.")
     @text(if text then " Sync: " + text else " Sync")
