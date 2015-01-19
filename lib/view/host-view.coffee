@@ -2,8 +2,10 @@
 
 module.exports =
 class ConfigView extends View
+  panel: null
+
   @content: ->
-    @div class: 'remote-sync overlay from-top', =>
+    @div class: 'remote-sync', =>
       @div class:'block', =>
         @div class: 'btn-group', outlet: 'transportGroup', =>
           @button class: 'btn  selected', targetBlock: 'authenticationButtonsBlock', 'SCP/SFTP'
@@ -54,8 +56,8 @@ class ConfigView extends View
     @on 'core:confirm', => @confirm()
     @saveButton.on 'click', => @confirm()
 
-    @on 'core:cancel', => @detach()
-    @cancelButton.on 'click', => @detach()
+    @on 'core:cancel', => @close()
+    @cancelButton.on 'click', => @close()
 
     @transportGroup.on 'click', (e)=>
       e.preventDefault()
@@ -80,7 +82,7 @@ class ConfigView extends View
       this[targetBlock].show().find(".editor").first().focus() if targetBlock
 
   attach: ->
-    atom.workspaceView.append(this)
+    @panel ?= atom.workspace.addModalPanel item: this
 
     @find(".editor").each (i, editor)=>
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
@@ -94,6 +96,11 @@ class ConfigView extends View
         return unless @host[btn.text()]
         btn.click()
         return false
+
+  close: ->
+    @detach()
+    @panel.destroy()
+    panel = null
 
   confirm: ->
     @host.uploadOnSave = @uploadOnSave.prop('checked')
@@ -110,4 +117,4 @@ class ConfigView extends View
       @host.useAgent = undefined
 
     @host.saveJSON()
-    @detach()
+    @close()
