@@ -36,9 +36,12 @@ module.exports =
 
     fs.exists configPath, (exists) ->
       if exists
+        statusView.attach()
         load()
       else
-        statusView.update "question", "Couldn't find config."
+        if atom.config.get("remote-sync.alwaysShowInStatusBar")
+          statusView.attach()
+          statusView.update "question", "Couldn't find config."
 
     atom.commands.add 'atom-workspace', 'remote-sync:download-all', ->
       return if checkSetting()
