@@ -206,6 +206,14 @@ removeLastUploadedFile = ->
         console.log fileWatcherCurrentlyUploading
     , 1000
 
+queueWatchedFileUpload = (filepath) ->
+    fileWatcherCurrentlyUploading[fileWatcherCurrentlyUploadingKey] = filepath
+    fileWatcherCurrentlyUploadingKey++
+    setTimeout ()->
+        handleSave(filepath)
+        removeLastUploadedFile()
+    , 1000
+
 initFileWatchers = ->
     destroyFileWatchers()
     i = 0
@@ -216,10 +224,7 @@ initFileWatchers = ->
               #console.log fileWatcherCurrentlyUploading
               alreadyuploading = searchCurrentlyUploadingFiles(@.path)
               if alreadyuploading isnt true
-                fileWatcherCurrentlyUploading[fileWatcherCurrentlyUploadingKey] = @.path
-                fileWatcherCurrentlyUploadingKey++
-                handleSave(@.path)
-                removeLastUploadedFile()
+                queueWatchedFileUpload(@.path)
 
 
 
