@@ -26,6 +26,8 @@ EventEmitter = null
 filesToWatch = {}
 fileWatcherList = {}
 fileWatcherListKey = 0;
+fileWatcherCurrentlyUploading = []
+fileWatcherCurrentlyUploadingKey = 0;
 
 uploadCmd = null
 downloadCmd = null
@@ -191,14 +193,35 @@ load = ->
       else
         transport.settings = settings
 
+searchCurrentlyUploadingFiles = (filepath) ->
+    for k, v of fileWatcherCurrentlyUploading
+      if v is filepath
+        return true
+
+    return false
+
+removeLastUploadedFile = ->
+    setTimeout ()->
+        delete fileWatcherCurrentlyUploading[fileWatcherCurrentlyUploading.length - 1]
+        console.log fileWatcherCurrentlyUploading
+    , 1000
+
 initFileWatchers = ->
     destroyFileWatchers()
     i = 0
     while i < filesToWatch.length
-      console.log atom.project.getPath() + filesToWatch[i]
       if filesToWatch[i]?
-        fileWatcherList[fileWatcherListKey] = Pathwatcher.watch atom.project.getPath() + filesToWatch[i], (event, path) ->          
-          if event is 'change' then handleSave(@.path)
+        fileWatcherList[fileWatcherListKey] = Pathwatcher.watch atom.project.getPath() + filesToWatch[i], (event, path) ->
+          if event is 'change'
+              #console.log fileWatcherCurrentlyUploading
+              alreadyuploading = searchCurrentlyUploadingFiles(@.path)
+              if alreadyuploading isnt true
+                fileWatcherCurrentlyUploading[fileWatcherCurrentlyUploadingKey] = @.path
+                fileWatcherCurrentlyUploadingKey++
+                handleSave(@.path)
+                removeLastUploadedFile()
+
+
 
         fileWatcherListKey++
       i++
@@ -207,11 +230,13 @@ initFileWatchers = ->
 
 destroyFileWatchers = ->
     i = 0
-    while i < fileWatcherList
+    while i < fileWatcherList.length
       fileWatcherList[i].close()
 
     fileWatcherList = {}
     fileWatcherListKey = 0
+
+
 
 init = ->
 
