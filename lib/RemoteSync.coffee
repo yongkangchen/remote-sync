@@ -2,6 +2,7 @@
 path = require "path"
 fs = require "fs-plus"
 {$} = require "atom"
+Pathwatcher = require 'pathwatcher'
 os = null
 exec = null
 
@@ -22,6 +23,10 @@ HostView = null
 HostModel = null
 EventEmitter = null
 
+filesToWatch = {}
+fileWatcherList = {}
+fileWatcherListKey = 0;
+
 uploadCmd = null
 downloadCmd = null
 
@@ -30,9 +35,13 @@ module.exports =
     Logger = require "./Logger"
     logger = new Logger "Remote Sync"
 
+
     statusView = new (require './view/StatusView')
     #TODO: support project path change
     configPath = path.join atom.project.getPath(), SETTINGS_FILE_NAME
+
+
+
 
     fs.exists configPath, (exists) ->
       if exists
@@ -149,6 +158,10 @@ load = ->
     else
       transportText = null
 
+    filesToWatch = settings.watch
+
+    initFileWatchers()
+
     unsubscript() if editorSubscription
     if settings.uploadOnSave != false
       statusView.update "eye-watch", null, transportText
@@ -178,9 +191,33 @@ load = ->
       else
         transport.settings = settings
 
+initFileWatchers = ->
+    destroyFileWatchers()
+    i = 0
+    while i < filesToWatch.length
+      console.log atom.project.getPath() + filesToWatch[i]
+      if filesToWatch[i]?
+        fileWatcherList[fileWatcherListKey] = Pathwatcher.watch atom.project.getPath() + filesToWatch[i], (event, path) ->          
+          if event is 'change' then handleSave(@.path)
+
+        fileWatcherListKey++
+      i++
+
+    console.log fileWatcherList
+
+destroyFileWatchers = ->
+    i = 0
+    while i < fileWatcherList
+      fileWatcherList[i].close()
+
+    fileWatcherList = {}
+    fileWatcherListKey = 0
+
 init = ->
+
   editorSubscription = atom.workspace.observeTextEditors (editor) ->
     bufferSavedSubscription = editor.onDidSave (e) ->
+      console.log "saved file"
       f = e.path
       return unless atom.project.contains(f)
       handleSave(f)
@@ -222,6 +259,7 @@ unsubscript = ->
 
 deinit = ->
   unsubscript()
+  destroyFileWatchers()
   settings = null
 
 getTransport = ->
