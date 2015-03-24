@@ -167,7 +167,7 @@ load = ->
         filePath = path.relative relativizePath, filePath
       minimatch = require "minimatch" if not minimatch
       for pattern in settings.ignore
-        return true if minimatch filePath, pattern, { matchBase: true }
+        return true if minimatch filePath, pattern, { matchBase: true, dot: true }
       return false
 
     if transport
