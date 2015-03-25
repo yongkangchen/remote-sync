@@ -160,7 +160,9 @@ load = ->
     else
       transportText = null
 
-    filesToWatch = settings.watch
+    filesToWatch = {}
+    if settings.watch
+      filesToWatch = settings.watch
 
     initFileWatchers()
 
@@ -204,7 +206,7 @@ removeLastUploadedFile = ->
     setTimeout ()->
         delete fileWatcherCurrentlyUploading[fileWatcherCurrentlyUploading.length - 1]
         console.log fileWatcherCurrentlyUploading
-    , 1000
+    , 1200
 
 queueWatchedFileUpload = (filepath) ->
     fileWatcherCurrentlyUploading[fileWatcherCurrentlyUploadingKey] = filepath
@@ -212,26 +214,26 @@ queueWatchedFileUpload = (filepath) ->
     setTimeout ()->
         handleSave(filepath)
         removeLastUploadedFile()
-    , 1000
+    , 1200
 
 initFileWatchers = ->
     destroyFileWatchers()
-    i = 0
-    while i < filesToWatch.length
-      if filesToWatch[i]?
-        fileWatcherList[fileWatcherListKey] = Pathwatcher.watch atom.project.getPath() + filesToWatch[i], (event, path) ->
-          if event is 'change'
-              #console.log fileWatcherCurrentlyUploading
-              alreadyuploading = searchCurrentlyUploadingFiles(@.path)
-              if alreadyuploading isnt true
-                queueWatchedFileUpload(@.path)
+    if filesToWatch.length != 0
+        i = 0
+        while i < filesToWatch.length
+          if filesToWatch[i]?
+            fileWatcherList[fileWatcherListKey] = Pathwatcher.watch atom.project.getPath() + filesToWatch[i], (event, path) ->
+              if event is 'change'
+                  #console.log fileWatcherCurrentlyUploading
+                  alreadyuploading = searchCurrentlyUploadingFiles(@.path)
+                  if alreadyuploading isnt true
+                    queueWatchedFileUpload(@.path)
 
 
 
-        fileWatcherListKey++
-      i++
+            fileWatcherListKey++
+          i++
 
-    console.log fileWatcherList
 
 destroyFileWatchers = ->
     i = 0
