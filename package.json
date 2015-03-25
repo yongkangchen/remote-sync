@@ -14,6 +14,7 @@
     "async": "^0.2",
     "mkdirp": "^0.3",
     "atom-message-panel": "^1.1.1",
+    "atom-space-pen-views": "^2.0.3",
     "fs-plus": "^2.1",
     "ftp": "^0.3.7"
   }

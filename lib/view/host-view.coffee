@@ -1,4 +1,4 @@
-{$, View, TextEditorView} = require 'atom'
+{$, View, TextEditorView} = require 'atom-space-pen-views'
 
 module.exports =
 class ConfigView extends View
