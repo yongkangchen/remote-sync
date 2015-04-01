@@ -47,6 +47,9 @@ SCP example:
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
     ".git/**"
+  ],
+  "watch": [
+    "/styles.css", "/script.js"
   ]
 }
 ```
