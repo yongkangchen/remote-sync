@@ -32,7 +32,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `target` — Target directory on remote host
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: true
-* `watch` = Array of files (relative to project root - starting with "/") to watch for changes
+* `watch` - Array of files (relative to project root - starting with "/") to watch for changes
 
 SCP example:
 ```json
