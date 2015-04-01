@@ -3,7 +3,7 @@
   "version": "2.4.0",
   "description": "Upload your files to remote host after every change. Both SCP/SFTP and FTP are supported.",
   "license": "MIT",
-  "repository": "https://github.com/yongkangchen/remote-sync",
+  "repository": "https://github.com/theproducer/remote-sync",
   "main": "index.coffee",
   "engines": {
     "atom": ">=0.78"
