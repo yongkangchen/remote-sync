@@ -4,7 +4,7 @@ fs = null
 path = require "path"
 
 module.exports =
-class ScpTransport
+class FtpTransport
   constructor: (@logger, @settings) ->
 
   dispose: ->
