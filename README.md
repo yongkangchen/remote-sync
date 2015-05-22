@@ -31,7 +31,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `useAgent` — Whether or not to use an agent process, default: false (only used for SCP)
 * `target` — Target directory on remote host
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
-* `uploadOnSave` — Whether or not to upload the current file when saved, default: true
+* `uploadOnSave` — Whether or not to upload the current file when saved, default: false
 
 SCP example:
 ```json
