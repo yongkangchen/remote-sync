@@ -35,7 +35,7 @@ handleEvent = (e, cmd)->
   return unless projectPath
   
   projectObj = projectDict[projectPath]
-  projectObj[cmd](fullPath)
+  projectObj[cmd]?(fullPath)
   
 reload = (projectPath)->
   projectDict[projectPath]?.dispose()
@@ -92,6 +92,8 @@ module.exports =
         return unless projectPath
         
         projectObj = projectDict[projectPath]
+        return unless projectObj
+        
         if fullPath == projectObj.configPath
           projectObj = reload(projectPath)
         
