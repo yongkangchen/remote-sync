@@ -1,12 +1,20 @@
 'context-menu':
-  '.tree-view .file':
-    'Remote Sync':
-      'Upload File': 'remote-sync:upload-file'
-      'Download File': 'remote-sync:download-file'
-      'Diff File': 'remote-sync:diff-file'
-  '.tree-view .header.list-item':
-    'Remote Sync':
-      'Configure': 'remote-sync:configure'
-      'Upload Folder': 'remote-sync:upload-folder'
-      'Download Folder': 'remote-sync:download-folder'
-      'Diff Folder': 'remote-sync:diff-folder'
+  'atom-text-editor, .tree-view.full-menu .file':[
+    label: 'Remote Sync',
+    submenu:[
+      {label: 'Upload File', command: 'remote-sync:upload-file'}
+      {label: 'Download File', command: 'remote-sync:download-file'}
+      {label: 'Diff File', command: 'remote-sync:diff-file'}
+    ]
+  ]
+  
+  '.tree-view.full-menu .header.list-item':[
+    label: 'Remote Sync',
+    submenu:[
+      {label: 'Configure', command: 'remote-sync:configure'}
+      {label: 'Upload Folder', command: 'remote-sync:upload-folder'}
+      {label: 'Upload Folder Change', command: 'remote-sync:upload-git-change'}
+      {label: 'Download Folder', command: 'remote-sync:download-folder'}
+      {label: 'Diff Folder', command: 'remote-sync:diff-folder'}
+    ]
+  ]
