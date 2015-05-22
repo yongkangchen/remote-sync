@@ -1,239 +1,147 @@
 
 path = require "path"
 fs = require "fs-plus"
-{$} = require "atom"
-os = null
+
 exec = null
+minimatch = null
 
-
-SETTINGS_FILE_NAME = ".remote-sync.json"
-
-logger = null
-configPath = null
-
-file = null
-settings = null
-editorSubscription = null
-bufferSubscriptionList = {}
-bufferSubscriptionListKey = 0
-transport = null
-statusView = null
-HostView = null
-HostModel = null
-EventEmitter = null
+ScpTransport = null
+FtpTransport = null
 
 uploadCmd = null
-downloadCmd = null
+DownloadCmd = null
+Host = null
 
-module.exports =
-  activate: ->
+HostView = null
+EventEmitter = null
+
+logger = null
+getLogger = ->
+  if not logger
     Logger = require "./Logger"
     logger = new Logger "Remote Sync"
+  return logger
 
-    statusView = new (require './view/StatusView')
-    #TODO: support project path change
-    configPath = path.join atom.project.getPath(), SETTINGS_FILE_NAME
+class RemoteSync
+  constructor: (@projectPath, @configPath) ->
+    Host ?= require './model/host'
+    
+    @host = new Host(@configPath)
+    @ignore = @host.ignore.split(",")
+  
+  dispose: ->
+    if @transport
+      @transport.dispose()
+      @transport = null
 
-    fs.exists configPath, (exists) ->
-      if exists
-        load()
-      else
-        statusView.update "question", "Couldn't find config."
+  isIgnore: (filePath, relativizePath) ->
+    return false unless @ignore
+    
+    relativizePath = @projectPath unless relativizePath
+    filePath = path.relative relativizePath, filePath
 
-    atom.commands.add 'atom-workspace', 'remote-sync:download-all', ->
-      return if checkSetting()
-      download(atom.project.getPath())
+    minimatch ?= require "minimatch"
+    for pattern in @ignore
+      return true if minimatch filePath, pattern, { matchBase: true, dot: true }
+    return false
 
-    atom.commands.add 'atom-workspace', 'remote-sync:reload-config', ->
-      load()
+  downloadFolder: (localPath, targetPath, callback)->
+    DownloadCmd ?= require './commands/DownloadAllCommand'
+    DownloadCmd.run(getLogger(), @getTransport(),
+                                localPath, targetPath, callback)
+  
+  downloadFile: (localPath)->
+    realPath = path.relative(@projectPath, localPath)
+    realPath = path.join(@host.target, realPath).replace(/\\/g, "/")
+    @getTransport().download(realPath)
+    
+  uploadFile: (filePath) ->
+    return if @isIgnore(filePath)
+    
+    if not uploadCmd
+      UploadListener = require "./UploadListener"
+      uploadCmd = new UploadListener getLogger()
 
-    atom.commands.add 'atom-workspace', 'remote-sync:upload-folder', (e)->
-      return if checkSetting()
-      uploadPath(getEventPath(e))
+    uploadCmd.handleSave(filePath, @getTransport())
 
-    atom.commands.add 'atom-workspace', 'remote-sync:upload-git-change', (e)->
-      return if checkSetting()
-      repo = atom.project.getRepo()
-      return unless repo
+  uploadFolder: (dirPath)->
+    fs.traverseTree dirPath, @uploadFile.bind(@), =>
+      return not @isIgnore(dirPath)
+  
+  uploadGitChange: (dirPath)->
+    repos = atom.project.getRepositories()
+    curRepo = null
+    for repo in repos
       workingDirectory = repo.getWorkingDirectory()
-      for filePath, status of repo.statuses
-        handleSave(path.join(workingDirectory, filePath)) if status != 512
-
-    atom.commands.add 'atom-workspace', 'remote-sync:upload-file', (e)->
-      return if checkSetting()
-      handleSave(getEventPath(e))
-
-    atom.commands.add 'atom-workspace', 'remote-sync:download-file', (e)->
-      return if checkSetting()
-      localPath = getEventPath(e)
-      return if settings.isIgnore(localPath)
-      realPath = atom.project.relativize(localPath)
-      realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
-      getTransport().download(realPath)
-
-    atom.commands.add 'atom-workspace', 'remote-sync:download-folder', (e)->
-      return if checkSetting()
-      download(getEventPath(e))
-
-    atom.commands.add 'atom-workspace', 'remote-sync:diff-file', (e)->
-      return if checkSetting()
-      localPath = getEventPath(e)
-      return if settings.isIgnore(localPath)
-      realPath = atom.project.relativize(localPath)
-      realPath = path.join(settings.target, realPath).replace(/\\/g, "/")
-
-      os = require "os" if not os
-      targetPath = path.join os.tmpDir(), "remote-sync"
-
-      getTransport().download realPath, targetPath, ->
-        diff localPath, targetPath
-
-    atom.commands.add 'atom-workspace', 'remote-sync:diff-folder', (e)->
-      return if checkSetting()
-      localPath = getEventPath(e)
-      os = require "os" if not os
-      targetPath = path.join os.tmpDir(), "remote-sync"
-
-      download localPath, targetPath, ->
-        diff localPath, targetPath
-
-    atom.commands.add 'atom-workspace', 'remote-sync:configure', (e)->
-      HostView ?= require './view/host-view'
-      HostModel ?= require './model/host'
-      EventEmitter ?= require("events").EventEmitter
-      emitter = new EventEmitter()
-      emitter.on "configured", () ->
-        load()
-      host = new HostModel(configPath, emitter)
-      view = new HostView(host)
-      view.attach()
-
-diff = (localPath, targetPath) ->
-  targetPath = path.join(targetPath, atom.project.relativize(localPath))
-  diffCmd = atom.config.get('remote-sync.difftoolCommand')
-  exec    = require("child_process").exec if not exec
-  exec "#{diffCmd} #{localPath} #{targetPath}", (err)->
-    return if not err
-    logger.error """Check [difftool Command] in your settings (remote-sync).
-     Command error: #{err}
-     command: #{diffCmd} #{localPath} #{targetPath}
-    """
-
-checkSetting = ->
-  if not settings
-    logger.error("#{configPath} doesn't exist")
-    return true
-  return false
-
-download = (localPath, targetPath, callback)->
-  if not downloadCmd
-    downloadCmd = require './commands/DownloadAllCommand'
-  downloadCmd.run(logger, getTransport(), localPath, targetPath, callback)
-
-minimatch = null
-load = ->
-  fs.readFile configPath,"utf8", (err, data) ->
-    return logger.error err if err
-
-    try
-      settings = JSON.parse(data)
-    catch err
-      deinit() if editorSubscription
-      logger.error "load #{configPath}, #{err}"
-      return
-
-    if settings.transport is "scp" or settings.transport is "sftp"
-      transportText = "SFTP"
-    else if settings.transport is "ftp"
-      transportText = "FTP"
+      if workingDirectory == @projectPath
+        curRepo = repo
+        break
+    return unless curRepo
+    
+    isChangedPath = (path)->
+      status = curRepo.getCachedPathStatus(path)
+      return curRepo.isStatusModified(status) or curRepo.isStatusNew(status)
+      
+    fs.traverseTree dirPath, (path)=>
+      @uploadFile(path) if isChangedPath(path)
+    , (path)=> return not @isIgnore(path)
+  
+  getTransport: ->
+    return @transport if @transport
+    if @host.transport is 'scp' or @host.transport is 'sftp'
+      ScpTransport ?= require "./transports/ScpTransport"
+      Transport = ScpTransport
+    else if @host.transport is 'ftp'
+      FtpTransport ?= require "./transports/FtpTransport"
+      Transport = FtpTransport
     else
-      transportText = null
+      throw new Error("[remote-sync] invalid transport: " + @host.transport + " in " + @configPath)
 
-    unsubscript() if editorSubscription
-    if settings.uploadOnSave != false
-      statusView.update "eye-watch", null, transportText
-      init() if not editorSubscription
-    else
-      statusView.update "eye-unwatch", "uploadOnSave disabled.", transportText
+    @transport = new Transport(getLogger(), @host,
+                              @projectPath, @isIgnore.bind(@))
 
-    if settings.ignore and not Array.isArray settings.ignore
-      settings.ignore = [settings.ignore]
+  diffFile: (localPath)->
+    realPath = path.relative(@projectPath, localPath)
+    realPath = path.join(@host.target, realPath).replace(/\\/g, "/")
 
-    settings.isIgnore = (filePath, relativizePath) ->
-      return false if not settings.ignore
-      if not relativizePath
-        filePath = atom.project.relativize filePath
-      else
-        filePath = path.relative relativizePath, filePath
-      minimatch = require "minimatch" if not minimatch
-      for pattern in settings.ignore
-        return true if minimatch filePath, pattern, { matchBase: true, dot: true }
-      return false
+    os = require "os" if not os
+    targetPath = path.join os.tmpDir(), "remote-sync"
 
-    if transport
-      old = transport.settings
-      if old.username != settings.username or old.hostname != settings.hostname or old.port != settings.port
-        transport.dispose()
-        transport = null
-      else
-        transport.settings = settings
+    @getTransport().download realPath, targetPath, =>
+      @diff localPath, targetPath
+  
+  diffFolder: (localPath)->
+    os = require "os" if not os
+    targetPath = path.join os.tmpDir(), "remote-sync"
+    @downloadFolder localPath, targetPath, =>
+      @diff localPath, targetPath
+  
+  diff: (localPath, targetPath) ->
+    targetPath = path.join(targetPath, path.relative(@projectPath, localPath))
+    diffCmd = atom.config.get('remote-sync.difftoolCommand')
+    exec ?= require("child_process").exec
+    exec "#{diffCmd} \"#{localPath}\" \"#{targetPath}\"", (err)->
+      return if not err
+      getLogger().error """Check [difftool Command] in your settings (remote-sync).
+       Command error: #{err}
+       command: #{diffCmd} #{localPath} #{targetPath}
+      """
+    
+module.exports = 
+  create: (projectPath)->
+    configPath = path.join projectPath, atom.config.get('remote-sync.configFileName')
+    return unless fs.existsSync configPath
+    return new RemoteSync(projectPath, configPath)
+  
+  configure: (projectPath, callback)->
+    HostView ?= require './view/host-view'
+    Host ?= require './model/host'
+    EventEmitter ?= require("events").EventEmitter
+    
+    emitter = new EventEmitter()
+    emitter.on "configured", callback
 
-init = ->
-  editorSubscription = atom.workspace.observeTextEditors (editor) ->
-    bufferSavedSubscription = editor.onDidSave (e) ->
-      f = e.path
-      return unless atom.project.contains(f)
-      handleSave(f)
-      load() if f == configPath
-
-    key = bufferSubscriptionListKey++
-    bufferSubscriptionList[key] = bufferSavedSubscription
-    editor.onDidDestroy ->
-      delete bufferSubscriptionList[key]
-      bufferSavedSubscription.dispose()
-
-handleSave = (filePath) ->
-  return if settings.isIgnore(filePath)
-
-  if not uploadCmd
-    UploadListener = require "./UploadListener"
-    uploadCmd = new UploadListener logger
-
-  uploadCmd.handleSave(filePath, getTransport())
-
-uploadPath = (dirPath)->
-  onFile = (filePath)->
-    handleSave(filePath)
-
-  onDir = (dirPath)->
-    return not settings.isIgnore(dirPath)
-
-  fs.traverseTree dirPath, onFile, onDir
-
-unsubscript = ->
-  editorSubscription.off()
-  editorSubscription = null
-
-  for k, bufferSavedSubscription of bufferSubscriptionList
-    bufferSavedSubscription.dispose()
-
-  bufferSubscriptionList = {}
-  bufferSubscriptionListKey = 0
-
-deinit = ->
-  unsubscript()
-  settings = null
-
-getTransport = ->
-  return transport if transport
-  if settings.transport is 'scp' or settings.type is 'sftp'
-    ScpTransport = require "./transports/ScpTransport"
-    transport = new ScpTransport logger, settings
-  else if settings.transport is 'ftp'
-    FtpTransport = require "./transports/FtpTransport"
-    transport = new FtpTransport logger, settings
-
-getEventPath = (e)->
-  target = $(e.target).closest('.file, .directory, .tab')[0]
-  target = atom.workspace.getActiveTextEditor() if not target
-  target.getPath()
+    configPath = path.join projectPath, atom.config.get('remote-sync.configFileName')
+    host = new Host(configPath, emitter)
+    view = new HostView(host)
+    view.attach()
