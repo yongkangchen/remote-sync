@@ -32,6 +32,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `target` — Target directory on remote host
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: false
+* `uploadMirrors` — transport mirror config array when upload
 
 SCP example:
 ```json
@@ -76,6 +77,49 @@ FTP example:
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
     ".git/**"
+  ]
+}
+```
+
+Upload mirrors example:
+```json
+{
+  "transport": "scp",
+  "hostname": "10.10.10.10",
+  "port": 22,
+  "username": "vagrant",
+  "password": "vagrant",
+  "keyfile": "/home/vagrant/.ssh/aws.pem",
+  "passphrase": "your_passphrase",
+  "target": "/home/vagrant/dirname/subdirname",
+  "ignore": [
+    ".git/**"
+  ],
+  "uploadMirrors":[
+    {
+      "transport": "scp",
+      "hostname": "10.10.10.10",
+      "port": 22,
+      "username": "vagrant",
+      "password": "vagrant",
+      "keyfile": "/home/vagrant/.ssh/aws.pem",
+      "passphrase": "your_passphrase",
+      "target": "/home/vagrant/dirname/subdirname_one",
+      "ignore": [
+        ".git/**"
+      ],
+    },
+    {
+      "transport": "ftp",
+      "hostname": "10.10.10.10",
+      "port": 21,
+      "username": "vagrant",
+      "password": "vagrant",
+      "target": "/home/vagrant/dirname/subdirname_two",
+      "ignore": [
+        ".git/**"
+      ]
+    }
   ]
 }
 ```
