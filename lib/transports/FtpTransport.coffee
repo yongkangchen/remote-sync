@@ -5,7 +5,7 @@ path = require "path"
 
 module.exports =
 class FtpTransport
-  constructor: (@logger, @settings, @projectPath, @isIgnore) ->
+  constructor: (@logger, @settings, @projectPath) ->
 
   dispose: ->
     if @connection
@@ -70,7 +70,7 @@ class FtpTransport
     targetPath = path.join(@settings.target,
                           path.relative(@projectPath, localPath))
                           .replace(/\\/g, "/")
-    isIgnore = @isIgnore
+    isIgnore = @settings.isIgnore
 
     @_getConnection (err, c) ->
       return callback err if err

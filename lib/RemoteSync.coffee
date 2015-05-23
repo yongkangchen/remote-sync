@@ -27,23 +27,28 @@ class RemoteSync
     Host ?= require './model/host'
     
     @host = new Host(@configPath)
-    @ignore = @host.ignore.split(",")
+    @initIgnore(@host)
   
+  initIgnore: (host)->
+    ignore = host.ignore?.split(",")
+    host.isIgnore = (filePath, relativizePath) =>
+      return false unless ignore
+      
+      relativizePath = @projectPath unless relativizePath
+      filePath = path.relative relativizePath, filePath
+
+      minimatch ?= require "minimatch"
+      for pattern in ignore
+        return true if minimatch filePath, pattern, { matchBase: true, dot: true }
+      return false
+      
+  isIgnore: (filePath, relativizePath)->
+    return @host.isIgnore(filePath, relativizePath)
+    
   dispose: ->
     if @transport
       @transport.dispose()
       @transport = null
-
-  isIgnore: (filePath, relativizePath) ->
-    return false unless @ignore
-    
-    relativizePath = @projectPath unless relativizePath
-    filePath = path.relative relativizePath, filePath
-
-    minimatch ?= require "minimatch"
-    for pattern in @ignore
-      return true if minimatch filePath, pattern, { matchBase: true, dot: true }
-    return false
 
   downloadFolder: (localPath, targetPath, callback)->
     DownloadCmd ?= require './commands/DownloadAllCommand'
@@ -63,6 +68,8 @@ class RemoteSync
       uploadCmd = new UploadListener getLogger()
 
     uploadCmd.handleSave(filePath, @getTransport())
+    for t in @getUploadMirrors()
+      uploadCmd.handleSave(filePath, t)
 
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
@@ -86,19 +93,31 @@ class RemoteSync
       @uploadFile(path) if isChangedPath(path)
     , (path)=> return not @isIgnore(path)
   
-  getTransport: ->
-    return @transport if @transport
-    if @host.transport is 'scp' or @host.transport is 'sftp'
+  createTransport: (host)->
+    if host.transport is 'scp' or host.transport is 'sftp'
       ScpTransport ?= require "./transports/ScpTransport"
       Transport = ScpTransport
-    else if @host.transport is 'ftp'
+    else if host.transport is 'ftp'
       FtpTransport ?= require "./transports/FtpTransport"
       Transport = FtpTransport
     else
-      throw new Error("[remote-sync] invalid transport: " + @host.transport + " in " + @configPath)
+      throw new Error("[remote-sync] invalid transport: " + host.transport + " in " + @configPath)
 
-    @transport = new Transport(getLogger(), @host,
-                              @projectPath, @isIgnore.bind(@))
+    return new Transport(getLogger(), host, @projectPath)
+
+  getTransport: ->
+    return @transport if @transport
+    @transport = @createTransport(@host)
+    return @transport
+
+  getUploadMirrors: ->
+    return @mirrorTransports if @mirrorTransports
+    @mirrorTransports = []
+    if @host.uploadMirrors
+      for host in @host.uploadMirrors
+        @initIgnore(host)
+        @mirrorTransports.push @createTransport(host)
+    return @mirrorTransports
 
   diffFile: (localPath)->
     realPath = path.relative(@projectPath, localPath)

@@ -5,7 +5,7 @@ path = require "path"
 
 module.exports =
 class ScpTransport
-  constructor: (@logger, @settings, @projectPath, @isIgnore) ->
+  constructor: (@logger, @settings, @projectPath) ->
 
   dispose: ->
     if @connection
@@ -70,8 +70,7 @@ class ScpTransport
             callback?()
 
   fetchFileTree: (localPath, callback) ->
-    {target} = @settings
-    isIgnore = @isIgnore
+    {target, isIgnore} = @settings
 
     targetPath = path.join(target,
                           path.relative(@projectPath, localPath))
