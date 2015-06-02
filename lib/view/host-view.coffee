@@ -1,4 +1,5 @@
 {$, View, TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 
 module.exports =
 class ConfigView extends View
@@ -49,15 +50,16 @@ class ConfigView extends View
         @input type: 'checkbox', outlet: 'uploadOnSave'
 
       @div class: 'block pull-right', =>
-        @button class: 'inline-block-tight btn', outlet: 'cancelButton', 'Cancel'
-        @button class: 'inline-block-tight btn', outlet: 'saveButton', 'Save'
+        @button class: 'inline-block-tight btn', outlet: 'cancelButton', click: 'close', 'Cancel'
+        @button class: 'inline-block-tight btn', outlet: 'saveButton', click: 'confirm', 'Save'
 
   initialize: (@host) ->
-    @on 'core:confirm', => @confirm()
-    @saveButton.on 'click', => @confirm()
-
-    @on 'core:cancel', => @close()
-    @cancelButton.on 'click', => @close()
+    @disposables = new CompositeDisposable
+    @disposables.add atom.commands.add 'atom-workspace',
+        'core:confirm': => @confirm()
+        'core:cancel': (event) =>
+          @close()
+          event.stopPropagation()
 
     @transportGroup.on 'click', (e)=>
       e.preventDefault()
@@ -100,7 +102,8 @@ class ConfigView extends View
   close: ->
     @detach()
     @panel.destroy()
-    panel = null
+    @panel = null
+    @disposables.dispose()
 
   confirm: ->
     @host.uploadOnSave = @uploadOnSave.prop('checked')
