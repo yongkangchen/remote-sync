@@ -1,4 +1,4 @@
-# Atom Remote Sync [![Make a donation via Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=lx1988cyk%40gmail%2ecom&lc=US&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
+# Atom Remote Sync
 
 This package provides functionality for:
 
@@ -31,8 +31,9 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `useAgent` — Whether or not to use an agent process, default: false (only used for SCP)
 * `target` — Target directory on remote host
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
-* `uploadOnSave` — Whether or not to upload the current file when saved, default: true
 * `watch` - Array of files (relative to project root - starting with "/") to watch for changes
+* `uploadOnSave` — Whether or not to upload the current file when saved, default: false
+* `uploadMirrors` — transport mirror config array when upload
 
 SCP example:
 ```json
@@ -84,6 +85,49 @@ FTP example:
 }
 ```
 
+Upload mirrors example:
+```json
+{
+  "transport": "scp",
+  "hostname": "10.10.10.10",
+  "port": 22,
+  "username": "vagrant",
+  "password": "vagrant",
+  "keyfile": "/home/vagrant/.ssh/aws.pem",
+  "passphrase": "your_passphrase",
+  "target": "/home/vagrant/dirname/subdirname",
+  "ignore": [
+    ".git/**"
+  ],
+  "uploadMirrors":[
+    {
+      "transport": "scp",
+      "hostname": "10.10.10.10",
+      "port": 22,
+      "username": "vagrant",
+      "password": "vagrant",
+      "keyfile": "/home/vagrant/.ssh/aws.pem",
+      "passphrase": "your_passphrase",
+      "target": "/home/vagrant/dirname/subdirname_one",
+      "ignore": [
+        ".git/**"
+      ],
+    },
+    {
+      "transport": "ftp",
+      "hostname": "10.10.10.10",
+      "port": 21,
+      "username": "vagrant",
+      "password": "vagrant",
+      "target": "/home/vagrant/dirname/subdirname_two",
+      "ignore": [
+        ".git/**"
+      ]
+    }
+  ]
+}
+```
+
 ## Usage example
 
 ### Existing project
@@ -103,3 +147,7 @@ That's it!
 5. Input `remote sync download all`
 
 The package will download all of the files from the remote server for you.
+
+
+#Make a donation via Paypal ![Make a donation via Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)
+Click 'Send Money' after login PayPal, and my PayPal account is: lx1988cyk#gmail.com
