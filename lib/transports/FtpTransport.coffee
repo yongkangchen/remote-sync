@@ -4,8 +4,8 @@ fs = null
 path = require "path"
 
 module.exports =
-class ScpTransport
-  constructor: (@logger, @settings) ->
+class FtpTransport
+  constructor: (@logger, @settings, @projectPath) ->
 
   dispose: ->
     if @connection
@@ -15,7 +15,7 @@ class ScpTransport
 
   upload: (localFilePath, callback) ->
     targetFilePath = path.join(@settings.target,
-                                path.relative(atom.project.getPath(), localFilePath))
+                                path.relative(@projectPath, localFilePath))
                                 .replace(/\\/g, "/")
 
     errorHandler = (err) =>
@@ -39,7 +39,7 @@ class ScpTransport
 
   download: (targetFilePath, localFilePath, callback) ->
     if not localFilePath
-      localFilePath = atom.project.getPath()
+      localFilePath = @projectPath
 
     localFilePath = path.resolve(localFilePath,
                                 path.relative(@settings.target, targetFilePath))
@@ -68,9 +68,9 @@ class ScpTransport
 
   fetchFileTree: (localPath, callback) ->
     targetPath = path.join(@settings.target,
-                          path.relative(atom.project.getPath(), localPath))
+                          path.relative(@projectPath, localPath))
                           .replace(/\\/g, "/")
-    {isIgnore} = @settings
+    isIgnore = @settings.isIgnore
 
     @_getConnection (err, c) ->
       return callback err if err
