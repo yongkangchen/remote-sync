@@ -52,6 +52,7 @@ SCP example:
   "watch": [
     "/styles.css", "/script.js"
   ]
+
 }
 ```
 

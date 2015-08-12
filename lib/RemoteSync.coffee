@@ -140,8 +140,8 @@ class RemoteSync
       i = 0
       while i < watchFiles.length
         if watchFiles[i]?
+          fullpath = atom.project.getPaths()[0] + watchFiles[i].replace /^\s+|\s+$/g, ""
 
-          fullpath = atom.project.getPaths()[0] + watchFiles[i]
           _this = @
           fileWatcherList[fileWatcherListKey] = PathWatcher.watch fullpath, (event, path) ->
             console.log event
