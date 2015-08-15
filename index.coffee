@@ -1,3 +1,5 @@
+fs = require('fs-plus')
+
 CompositeDisposable = null
 path = null
 $ = null
@@ -27,6 +29,7 @@ initProject = (projectPaths)->
     delete projectDict[projectPath]
   
   for projectPath in projectPaths
+    projectPath = fs.realpathSync(projectPath)
     RemoteSync ?= require "./lib/RemoteSync"
     projectDict[projectPath] ?= RemoteSync.create(projectPath)
   
@@ -34,8 +37,8 @@ handleEvent = (e, cmd)->
   [projectPath, fullPath] = getEventPath(e)
   return unless projectPath
   
-  projectObj = projectDict[projectPath]
-  projectObj[cmd]?(fullPath)
+  projectObj = projectDict[fs.realpathSync(projectPath)]
+  projectObj[cmd]?(fs.realpathSync(fullPath))
   
 reload = (projectPath)->
   projectDict[projectPath]?.dispose()
@@ -45,6 +48,7 @@ configure = (e)->
   [projectPath] = getEventPath(e)
   return unless projectPath
   
+  projectPath = fs.realpathSync(projectPath)
   RemoteSync ?= require "./lib/RemoteSync"
   RemoteSync.configure projectPath, -> reload(projectPath)
 
@@ -91,14 +95,15 @@ module.exports =
         [projectPath, relativePath] = atom.project.relativizePath(fullPath)
         return unless projectPath
         
+        projectPath = fs.realpathSync(projectPath)
         projectObj = projectDict[projectPath]
         return unless projectObj
         
-        if fullPath == projectObj.configPath
+        if fs.realpathSync(fullPath) == fs.realpathSync(projectObj.configPath)
           projectObj = reload(projectPath)
         
         return unless projectObj.host.uploadOnSave
-        projectObj.uploadFile(fullPath)
+        projectObj.uploadFile(fs.realpathSync(fullPath))
         
       
       onDidDestroy = editor.onDidDestroy ->
