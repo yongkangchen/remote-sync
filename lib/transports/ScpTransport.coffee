@@ -12,6 +12,30 @@ class ScpTransport
       @connection.end()
       @connection = null
 
+  delete: (localFilePath, callback) ->
+    targetFilePath = path.join(@settings.target,
+                          path.relative(@projectPath, localFilePath))
+                          .replace(/\\/g, "/")
+
+    errorHandler = (err) =>
+      @logger.error err
+      callback()
+
+    @_getConnection (err, c) =>
+      return errorHandler err if err
+
+      end = @logger.log "Remote delete: #{targetFilePath} ..."
+
+      c.sftp (err, sftp) ->
+        return errorHandler err if err
+
+        c.exec "rm -rf \"#{targetFilePath}\"", (err) ->
+          return errorHandler err if err
+
+          end()
+          sftp.end()
+          callback()
+
   upload: (localFilePath, callback) ->
     fs = require "fs" if not fs
     targetFilePath = path.join(@settings.target,
