@@ -74,6 +74,7 @@ module.exports =
     disposables.add atom.commands.add('atom-workspace', {
       'remote-sync:upload-folder': (e)-> handleEvent(e, "uploadFolder")
       'remote-sync:upload-file': (e)-> handleEvent(e, "uploadFile")
+      'remote-sync:delete-file': (e)-> handleEvent(e, "deleteFile")
       'remote-sync:download-file': (e)-> handleEvent(e, "downloadFile")
       'remote-sync:download-folder': (e)-> handleEvent(e, "downloadFolder")
       'remote-sync:diff-file': (e)-> handleEvent(e, "diffFile")

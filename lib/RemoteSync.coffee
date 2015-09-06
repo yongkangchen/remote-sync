@@ -50,6 +50,17 @@ class RemoteSync
       @transport.dispose()
       @transport = null
 
+  deleteFile: (filePath) ->
+    return if @isIgnore(filePath)
+
+    if not uploadCmd
+      UploadListener = require "./UploadListener"
+      uploadCmd = new UploadListener getLogger()
+
+    uploadCmd.handleDelete(filePath, @getTransport())
+    for t in @getUploadMirrors()
+      uploadCmd.handleDelete(filePath, t)
+
   downloadFolder: (localPath, targetPath, callback)->
     DownloadCmd ?= require './commands/DownloadAllCommand'
     DownloadCmd.run(getLogger(), @getTransport(),
