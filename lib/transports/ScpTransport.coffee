@@ -13,8 +13,9 @@ class ScpTransport
       @connection = null
 
   upload: (localFilePath, callback) ->
+    fs = require "fs" if not fs
     targetFilePath = path.join(@settings.target,
-                          path.relative(@projectPath, localFilePath))
+                          path.relative(fs.realpathSync(@projectPath), fs.realpathSync(localFilePath)))
                           .replace(/\\/g, "/")
 
     errorHandler = (err) =>
