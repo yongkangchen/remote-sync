@@ -24,7 +24,7 @@ class Host
     @configPath = undefined
     @emitter = undefined
 
-    @ignore?= ".git/**"
+    @ignore?= ".remote-sync.json,.git/**"
     @ignore = @ignore.split(',')
     @ignore = (val.trim() for val in @ignore when val)
 
