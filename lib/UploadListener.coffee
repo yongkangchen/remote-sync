@@ -13,6 +13,19 @@ class UploadListener
       localFilePath: localFilePath
       transport: transport
 
+  handleDelete: (localFilePath, transport) ->
+    if not @queue
+      async = require "async" if not async
+      @queue = async.queue(@deleteFile.bind(@), 1)
+
+    @queue.push
+      localFilePath: localFilePath
+      transport: transport
+
+  deleteFile: (task, callback) ->
+    {localFilePath, transport} = task
+    transport.delete localFilePath, callback
+
   uploadFile: (task, callback) ->
     {localFilePath, transport} = task
     transport.upload localFilePath, callback
