@@ -46,6 +46,7 @@ SCP example:
   "passphrase": "your_passphrase",
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
+    ".remote-sync.json",
     ".git/**"
   ]
 }
@@ -61,6 +62,7 @@ SCP `useAgent` example:
   "useAgent": true,
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
+    ".remote-sync.json",
     ".git/**"
   ]
 }
@@ -76,6 +78,7 @@ FTP example:
   "password": "vagrant",
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
+    ".remote-sync.json",
     ".git/**"
   ]
 }
@@ -93,6 +96,7 @@ Upload mirrors example:
   "passphrase": "your_passphrase",
   "target": "/home/vagrant/dirname/subdirname",
   "ignore": [
+    ".remote-sync.json",
     ".git/**"
   ],
   "uploadMirrors":[
@@ -106,6 +110,7 @@ Upload mirrors example:
       "passphrase": "your_passphrase",
       "target": "/home/vagrant/dirname/subdirname_one",
       "ignore": [
+	    ".remote-sync.json",
         ".git/**"
       ],
     },
@@ -117,6 +122,7 @@ Upload mirrors example:
       "password": "vagrant",
       "target": "/home/vagrant/dirname/subdirname_two",
       "ignore": [
+	    ".remote-sync.json",
         ".git/**"
       ]
     }
