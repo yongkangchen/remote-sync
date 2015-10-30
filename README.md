@@ -112,7 +112,7 @@ Upload mirrors example:
       "ignore": [
 	    ".remote-sync.json",
         ".git/**"
-      ],
+      ]
     },
     {
       "transport": "ftp",
