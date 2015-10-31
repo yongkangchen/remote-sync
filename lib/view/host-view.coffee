@@ -46,8 +46,13 @@ class ConfigView extends View
       @div class: 'block', outlet: 'ftpPasswordBlock', style: 'display:none', =>
         @label 'Password'
 
-      @label " uploadOnSave", =>
-        @input type: 'checkbox', outlet: 'uploadOnSave'
+      @div =>
+        @label " uploadOnSave", =>
+          @input type: 'checkbox', outlet: 'uploadOnSave'
+
+      @div =>
+        @label " useAtomicWrites", =>
+          @input type: 'checkbox', outlet: 'useAtomicWrites'
 
       @div class: 'block pull-right', =>
         @button class: 'inline-block-tight btn', outlet: 'cancelButton', click: 'close', 'Cancel'
@@ -91,6 +96,7 @@ class ConfigView extends View
       $(editor).view().setText(@host[dataName] or "")
 
     @uploadOnSave.prop('checked', @host.uploadOnSave)
+    @useAtomicWrites.prop('checked', @host.useAtomicWrites)
     $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click() if @host.transport
     if @host.transport is "scp"
       $('.btn-group .btn', @authenticationButtonsBlock).each (i, btn)=>
@@ -107,6 +113,7 @@ class ConfigView extends View
 
   confirm: ->
     @host.uploadOnSave = @uploadOnSave.prop('checked')
+    @host.useAtomicWrites = @useAtomicWrites.prop('checked')
     @find(".editor").each (i, editor)=>
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
       view = $(editor).view()
