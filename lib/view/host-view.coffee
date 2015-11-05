@@ -114,7 +114,7 @@ class ConfigView extends View
       val = undefined if val == "" or view.parent().isHidden() or view.parent().parent().isHidden()
       @host[dataName] = val
 
-    if @host.transport == "scp" and @userAgentButton.hasClass('selected')
+    if (@host.transport == undefined or @host.transport == "scp") and @userAgentButton.hasClass('selected')
       @host.useAgent = true
     else
       @host.useAgent = undefined
