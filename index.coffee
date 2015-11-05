@@ -30,8 +30,10 @@ initProject = (projectPaths)->
   
   for projectPath in projectPaths
     projectPath = fs.realpathSync(projectPath)
+    continue if projectDict[projectPath]
     RemoteSync ?= require "./lib/RemoteSync"
-    projectDict[projectPath] ?= RemoteSync.create(projectPath)
+    obj = RemoteSync.create(projectPath)
+    projectDict[projectPath] = obj if obj
   
 handleEvent = (e, cmd)->
   [projectPath, fullPath] = getEventPath(e)
