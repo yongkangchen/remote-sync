@@ -41,8 +41,6 @@ class RemoteSync
     if watchFiles?
         @destroyFileWatchers()
         @initFileWatchers()
-    console.log fileWatcherList
-    console.log fileWatcherListKey
     @initIgnore(@host)
 
   initIgnore: (host)->
@@ -144,7 +142,6 @@ class RemoteSync
 
           _this = @
           fileWatcherList[fileWatcherListKey] = PathWatcher.watch fullpath, (event, path) ->
-            console.log event
             if event is 'change'
                 alreadyqueued = searchQueuedUploadFiles(@.path)
                 if alreadyqueued isnt true
@@ -162,9 +159,7 @@ class RemoteSync
     fileWatcherQueued[fileWatcherQueuedKey] = filepath
     fileWatcherQueuedKey++
     _this = @
-    console.log @.filepath
     setTimeout ()->
-      console.log @.filepath
       uploadCmd.handleSave(filepath, _this.getTransport())
       _this.removeLastUploadedFile()
     , 1200
