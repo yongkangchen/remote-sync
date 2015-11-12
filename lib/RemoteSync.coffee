@@ -160,6 +160,10 @@ class RemoteSync
     fileWatcherQueuedKey++
     _this = @
     setTimeout ()->
+      if not uploadCmd
+          UploadListener = require "./UploadListener"
+          uploadCmd = new UploadListener getLogger()
+
       uploadCmd.handleSave(filepath, _this.getTransport())
       _this.removeLastUploadedFile()
     , 1200
