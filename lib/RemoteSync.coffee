@@ -79,6 +79,7 @@ class RemoteSync
     repos = atom.project.getRepositories()
     curRepo = null
     for repo in repos
+      continue unless repo
       workingDirectory = repo.getWorkingDirectory()
       if workingDirectory == @projectPath
         curRepo = repo
