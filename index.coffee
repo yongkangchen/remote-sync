@@ -10,7 +10,7 @@ getEventPath = (e)->
   target = $(e.target).closest('.file, .directory, .tab')[0]
   target ?= atom.workspace.getActiveTextEditor()
   
-  fullPath = target?.getPath()
+  fullPath = target?.getPath?()
   return [] unless fullPath
   
   [projectPath, relativePath] = atom.project.relativizePath(fullPath)
