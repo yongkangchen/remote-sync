@@ -29,7 +29,10 @@ initProject = (projectPaths)->
     delete projectDict[projectPath]
   
   for projectPath in projectPaths
-    projectPath = fs.realpathSync(projectPath)
+    try
+        projectPath = fs.realpathSync(projectPath)
+    catch err
+        continue
     continue if projectDict[projectPath]
     RemoteSync ?= require "./lib/RemoteSync"
     obj = RemoteSync.create(projectPath)
