@@ -33,6 +33,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: false
 * `uploadMirrors` — transport mirror config array when upload
+* `deleteLocal` - whether or not to delete the local file / folder after remote delete
 
 SCP example:
 ```json
