@@ -5,9 +5,10 @@
       {label: 'Upload File', command: 'remote-sync:upload-file'}
       {label: 'Download File', command: 'remote-sync:download-file'}
       {label: 'Diff File', command: 'remote-sync:diff-file'}
+      {label: 'Delete File', command: 'remote-sync:delete-file'}
     ]
   ]
-  
+
   '.tree-view.full-menu .header.list-item':[
     label: 'Remote Sync',
     submenu:[
@@ -16,5 +17,6 @@
       {label: 'Upload Folder Change', command: 'remote-sync:upload-git-change'}
       {label: 'Download Folder', command: 'remote-sync:download-folder'}
       {label: 'Diff Folder', command: 'remote-sync:diff-folder'}
+      {label: 'Delete Folder', command: 'remote-sync:delete-folder'}
     ]
   ]
