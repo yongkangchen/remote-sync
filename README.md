@@ -15,7 +15,7 @@ You can install this like any other Atom package, with one of these methods:
 
 * Open your settings in Atom, select the "Install" tab, search for "remote-sync", and click install on it
 * Run `apm install remote-sync` in a terminal
-* Download or clone this repository to your `~/.atom/packages/` directory
+* Download or clone this repository to your `~/.atom/packages/` directory and enter the directory run `apm install`
 
 ## Usage
 
