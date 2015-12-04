@@ -9,8 +9,7 @@ class FtpTransport
 
   dispose: ->
     if @connection
-      @connection.raw.quit (err, data) =>
-        @logger.error err if err
+      @connection.end()
       @connection = null
 
   delete: (localFilePath, callback) ->
