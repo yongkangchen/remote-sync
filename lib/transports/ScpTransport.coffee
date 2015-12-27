@@ -165,6 +165,7 @@ class ScpTransport
       password: password
       privateKey: privateKey
       passphrase: passphrase
+      readyTimeout: readyTimeout
       agent: agent
 
     @connection = connection
