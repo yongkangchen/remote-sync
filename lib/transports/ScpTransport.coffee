@@ -152,11 +152,11 @@ class ScpTransport
         if /windows/i.test process.env['OS']
           process.env['SSH_AUTH_SOCK'] or "pageant"
         else
-          process.env['SSH_AUTH_SOCK']
+          process.env['SSH_AUTH_SOCK'] or null
       when typeof useAgent is "string"
         useAgent
       else
-        ""
+        null
     
     connection.connect
       host: hostname
