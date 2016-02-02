@@ -12,6 +12,30 @@ class ScpTransport
       @connection.end()
       @connection = null
 
+  delete: (localFilePath, callback) ->
+    targetFilePath = path.join(@settings.target,
+                          path.relative(@projectPath, localFilePath))
+                          .replace(/\\/g, "/")
+
+    errorHandler = (err) =>
+      @logger.error err
+      callback()
+
+    @_getConnection (err, c) =>
+      return errorHandler err if err
+
+      end = @logger.log "Remote delete: #{targetFilePath} ..."
+
+      c.sftp (err, sftp) ->
+        return errorHandler err if err
+
+        c.exec "rm -rf \"#{targetFilePath}\"", (err) ->
+          return errorHandler err if err
+
+          end()
+          sftp.end()
+          callback()
+
   upload: (localFilePath, callback) ->
     fs = require "fs" if not fs
     targetFilePath = path.join(@settings.target,
@@ -130,7 +154,18 @@ class ScpTransport
       privateKey = fs.readFileSync keyfile
     else
       privateKey = null
-
+      
+    agent = switch
+      when useAgent is true
+        if /windows/i.test process.env['OS']
+          process.env['SSH_AUTH_SOCK'] or "pageant"
+        else
+          process.env['SSH_AUTH_SOCK'] or null
+      when typeof useAgent is "string"
+        useAgent
+      else
+        null
+    
     connection.connect
       host: hostname
       port: port
@@ -139,6 +174,6 @@ class ScpTransport
       privateKey: privateKey
       passphrase: passphrase
       readyTimeout: readyTimeout
-      agent: if useAgent then process.env['SSH_AUTH_SOCK'] else null
+      agent: agent
 
     @connection = connection

@@ -54,6 +54,9 @@ class ConfigView extends View
         @label " useAtomicWrites", =>
           @input type: 'checkbox', outlet: 'useAtomicWrites'
 
+      @label " Delete local file/folder upon remote delete", =>
+        @input type: 'checkbox', outlet: 'deleteLocal'
+
       @div class: 'block pull-right', =>
         @button class: 'inline-block-tight btn', outlet: 'cancelButton', click: 'close', 'Cancel'
         @button class: 'inline-block-tight btn', outlet: 'saveButton', click: 'confirm', 'Save'
@@ -97,6 +100,7 @@ class ConfigView extends View
 
     @uploadOnSave.prop('checked', @host.uploadOnSave)
     @useAtomicWrites.prop('checked', @host.useAtomicWrites)
+    @deleteLocal.prop('checked', @host.deleteLocal)
     $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click() if @host.transport
     if @host.transport is "scp"
       $('.btn-group .btn', @authenticationButtonsBlock).each (i, btn)=>
@@ -114,6 +118,7 @@ class ConfigView extends View
   confirm: ->
     @host.uploadOnSave = @uploadOnSave.prop('checked')
     @host.useAtomicWrites = @useAtomicWrites.prop('checked')
+    @host.deleteLocal = @deleteLocal.prop('checked')
     @find(".editor").each (i, editor)=>
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
       view = $(editor).view()

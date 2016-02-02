@@ -25,15 +25,15 @@ getLogger = ->
 class RemoteSync
   constructor: (@projectPath, @configPath) ->
     Host ?= require './model/host'
-    
+
     @host = new Host(@configPath)
     @initIgnore(@host)
-  
+
   initIgnore: (host)->
     ignore = host.ignore?.split(",")
     host.isIgnore = (filePath, relativizePath) =>
       return false unless ignore
-      
+
       relativizePath = @projectPath unless relativizePath
       filePath = path.relative relativizePath, filePath
 
@@ -41,28 +41,42 @@ class RemoteSync
       for pattern in ignore
         return true if minimatch filePath, pattern, { matchBase: true, dot: true }
       return false
-      
+
   isIgnore: (filePath, relativizePath)->
     return @host.isIgnore(filePath, relativizePath)
-    
+
   dispose: ->
     if @transport
       @transport.dispose()
       @transport = null
 
+  deleteFile: (filePath) ->
+    return if @isIgnore(filePath)
+
+    if not uploadCmd
+      UploadListener = require "./UploadListener"
+      uploadCmd = new UploadListener getLogger()
+
+    uploadCmd.handleDelete(filePath, @getTransport())
+    for t in @getUploadMirrors()
+      uploadCmd.handleDelete(filePath, t)
+
+    if @host.deleteLocal
+      fs.removeSync(filePath)
+
   downloadFolder: (localPath, targetPath, callback)->
     DownloadCmd ?= require './commands/DownloadAllCommand'
     DownloadCmd.run(getLogger(), @getTransport(),
                                 localPath, targetPath, callback)
-  
+
   downloadFile: (localPath)->
     realPath = path.relative(@projectPath, localPath)
     realPath = path.join(@host.target, realPath).replace(/\\/g, "/")
     @getTransport().download(realPath)
-    
+
   uploadFile: (filePath) ->
     return if @isIgnore(filePath)
-    
+
     if not uploadCmd
       UploadListener = require "./UploadListener"
       uploadCmd = new UploadListener getLogger()
@@ -74,25 +88,26 @@ class RemoteSync
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
-  
+
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
     curRepo = null
     for repo in repos
+      continue unless repo
       workingDirectory = repo.getWorkingDirectory()
       if workingDirectory == @projectPath
         curRepo = repo
         break
     return unless curRepo
-    
+
     isChangedPath = (path)->
       status = curRepo.getCachedPathStatus(path)
       return curRepo.isStatusModified(status) or curRepo.isStatusNew(status)
-      
+
     fs.traverseTree dirPath, (path)=>
       @uploadFile(path) if isChangedPath(path)
     , (path)=> return not @isIgnore(path)
-  
+
   createTransport: (host)->
     if host.transport is 'scp' or host.transport is 'sftp'
       ScpTransport ?= require "./transports/ScpTransport"
@@ -128,13 +143,13 @@ class RemoteSync
 
     @getTransport().download realPath, targetPath, =>
       @diff localPath, targetPath
-  
+
   diffFolder: (localPath)->
     os = require "os" if not os
     targetPath = path.join os.tmpDir(), "remote-sync"
     @downloadFolder localPath, targetPath, =>
       @diff localPath, targetPath
-  
+
   diff: (localPath, targetPath) ->
     targetPath = path.join(targetPath, path.relative(@projectPath, localPath))
     diffCmd = atom.config.get('remote-sync.difftoolCommand')
@@ -145,18 +160,18 @@ class RemoteSync
        Command error: #{err}
        command: #{diffCmd} #{localPath} #{targetPath}
       """
-    
-module.exports = 
+
+module.exports =
   create: (projectPath)->
     configPath = path.join projectPath, atom.config.get('remote-sync.configFileName')
     return unless fs.existsSync configPath
     return new RemoteSync(projectPath, configPath)
-  
+
   configure: (projectPath, callback)->
     HostView ?= require './view/host-view'
     Host ?= require './model/host'
     EventEmitter ?= require("events").EventEmitter
-    
+
     emitter = new EventEmitter()
     emitter.on "configured", callback
 

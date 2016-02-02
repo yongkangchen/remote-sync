@@ -9,9 +9,29 @@ class FtpTransport
 
   dispose: ->
     if @connection
-      @connection.raw.quit (err, data) =>
-        @logger.error err if err
+      @connection.end()
       @connection = null
+
+  delete: (localFilePath, callback) ->
+    targetFilePath = path.join(@settings.target,
+                                path.relative(@projectPath, localFilePath))
+                                .replace(/\\/g, "/")
+
+    errorHandler = (err) =>
+      @logger.error err
+      callback()
+
+    @_getConnection (err, c) =>
+      return errorHandler err if err
+
+      end = @logger.log "Remote delete: #{targetFilePath} ..."
+
+      c.delete targetFilePath, (err) ->
+        return errorHandler err if err
+
+        end()
+
+        callback()
 
   upload: (localFilePath, callback) ->
     targetFilePath = path.join(@settings.target,

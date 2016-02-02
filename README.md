@@ -15,7 +15,7 @@ You can install this like any other Atom package, with one of these methods:
 
 * Open your settings in Atom, select the "Install" tab, search for "remote-sync", and click install on it
 * Run `apm install remote-sync` in a terminal
-* Download or clone this repository to your `~/.atom/packages/` directory
+* Download or clone this repository to your `~/.atom/packages/` directory and enter the directory run `apm install`
 
 ## Usage
 
@@ -34,6 +34,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: false
 * `useAtomicWrites` — Upload file using a temporary filename before moving to its final location (only used for SCP), default: false
 * `uploadMirrors` — transport mirror config array when upload
+* `deleteLocal` - whether or not to delete the local file / folder after remote delete
 
 SCP example:
 ```json
