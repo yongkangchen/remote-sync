@@ -81,6 +81,12 @@ class RemoteSync
       UploadListener = require "./UploadListener"
       uploadCmd = new UploadListener getLogger()
 
+    if @host.saveOnUpload
+      for e in atom.workspace.getTextEditors()
+        if e.getPath() is filePath and e.isModified()
+          e.save()
+          return if @host.uploadOnSave
+      
     uploadCmd.handleSave(filePath, @getTransport())
     for t in @getUploadMirrors()
       uploadCmd.handleSave(filePath, t)
