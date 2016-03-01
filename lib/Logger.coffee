@@ -11,7 +11,7 @@ class Logger
       @panel = new MessagePanelView
         title: @title
 
-    @panel.attach() if @panel.parents('html').length == 0
+    @panel.attach()
     msg = new PlainMessageView
       message: message
       className: className
