@@ -46,9 +46,10 @@ class FtpTransport
       return errorHandler err if err
 
       end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ..."
+      mpath = path.dirname(targetFilePath)
 
-      c.mkdir path.dirname(targetFilePath), true, (err) ->
-        return errorHandler err if err
+      c.mkdir mpath, true, (err) ->
+        return errorHandler err if err and mpath != "/"
 
         c.put localFilePath, targetFilePath, (err) ->
           return errorHandler err if err
