@@ -28,10 +28,12 @@ class RemoteSync
 
     @host = new Host(@configPath)
     @initIgnore(@host)
-
+    @projectPath = path.join(@projectPath, @host.source) if @host.source
+    
   initIgnore: (host)->
     ignore = host.ignore?.split(",")
     host.isIgnore = (filePath, relativizePath) =>
+      return true unless relativizePath or @inPath(@projectPath, filePath)
       return false unless ignore
 
       relativizePath = @projectPath unless relativizePath
@@ -45,6 +47,10 @@ class RemoteSync
   isIgnore: (filePath, relativizePath)->
     return @host.isIgnore(filePath, relativizePath)
 
+  inPath: (rootPath, localPath)->
+    localPath = localPath + path.sep if fs.isDirectorySync(localPath)
+    return localPath.indexOf(rootPath + path.sep) == 0
+    
   dispose: ->
     if @transport
       @transport.dispose()
@@ -70,6 +76,7 @@ class RemoteSync
                                 localPath, targetPath, callback)
 
   downloadFile: (localPath)->
+    return if @isIgnore(localPath)
     realPath = path.relative(@projectPath, localPath)
     realPath = path.join(@host.target, realPath).replace(/\\/g, "/")
     @getTransport().download(realPath)
@@ -95,7 +102,7 @@ class RemoteSync
     for repo in repos
       continue unless repo
       workingDirectory = repo.getWorkingDirectory()
-      if workingDirectory == @projectPath
+      if @inPath(workingDirectory, @projectPath)
         curRepo = repo
         break
     return unless curRepo
@@ -151,6 +158,7 @@ class RemoteSync
       @diff localPath, targetPath
 
   diff: (localPath, targetPath) ->
+    return if @isIgnore(localPath)
     targetPath = path.join(targetPath, path.relative(@projectPath, localPath))
     diffCmd = atom.config.get('remote-sync.difftoolCommand')
     exec ?= require("child_process").exec
