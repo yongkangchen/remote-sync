@@ -64,6 +64,11 @@ module.exports =
       default: false
       title: 'Log to console'
       description: 'Log messages to the console instead of the status view at the bottom of the window'
+    autoHideLogPanel:
+      type: 'boolean'
+      default: false
+      title: 'Hide log panel after transferring'
+      description: 'Hides the status view at the bottom of the window after the transfer operation is done'
     difftoolCommand:
       type: 'string'
       default: ''
