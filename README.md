@@ -30,6 +30,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `passphrase` — Passphrase for the SSH key (only used for SCP)
 * `useAgent` — Whether or not to use an agent process, default: false (only used for SCP)
 * `target` — Target directory on remote host
+* `source` — Source directory relative to project root
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: false
 * `uploadMirrors` — transport mirror config array when upload
