@@ -46,9 +46,13 @@ class ConfigView extends View
       @div class: 'block', outlet: 'ftpPasswordBlock', style: 'display:none', =>
         @label 'Password'
 
-      @div class:'block', =>
+      @div =>
         @label " uploadOnSave", =>
           @input type: 'checkbox', outlet: 'uploadOnSave'
+
+      @div =>
+        @label " useAtomicWrites", =>
+          @input type: 'checkbox', outlet: 'useAtomicWrites'
 
       @label " Delete local file/folder upon remote delete", =>
         @input type: 'checkbox', outlet: 'deleteLocal'
@@ -95,6 +99,7 @@ class ConfigView extends View
       $(editor).view().setText(@host[dataName] or "")
 
     @uploadOnSave.prop('checked', @host.uploadOnSave)
+    @useAtomicWrites.prop('checked', @host.useAtomicWrites)
     @deleteLocal.prop('checked', @host.deleteLocal)
     $(":contains('"+@host.transport.toUpperCase()+"')", @transportGroup).click() if @host.transport
     if @host.transport is "scp"
@@ -112,6 +117,7 @@ class ConfigView extends View
 
   confirm: ->
     @host.uploadOnSave = @uploadOnSave.prop('checked')
+    @host.useAtomicWrites = @useAtomicWrites.prop('checked')
     @host.deleteLocal = @deleteLocal.prop('checked')
     @find(".editor").each (i, editor)=>
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()

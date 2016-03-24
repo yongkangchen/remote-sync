@@ -51,19 +51,27 @@ class ScpTransport
 
       end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ..."
 
-      c.sftp (err, sftp) ->
+      c.sftp (err, sftp) =>
         return errorHandler err if err
 
-        c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) ->
+        c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) =>
           return errorHandler err if err
 
-          sftp.fastPut localFilePath, targetFilePath, (err) ->
+          uploadFilePath = if @settings.useAtomicWrites then "#{targetFilePath}.temp" else "#{targetFilePath}"
+
+          sftp.fastPut localFilePath, uploadFilePath, (err) =>
             return errorHandler err if err
 
-            end()
-
             sftp.end()
-            callback()
+
+            if @settings.useAtomicWrites
+              c.exec "cp \"#{uploadFilePath}\" \"#{targetFilePath}\"; rm \"#{uploadFilePath}\"", (err) ->
+                return errorHandler err if err
+                end()
+                callback()
+            else
+              end()
+              callback()
 
   download: (targetFilePath, localFilePath, callback) ->
     if not localFilePath

@@ -33,6 +33,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 * `source` — Source directory relative to project root
 * `ignore` — Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
 * `uploadOnSave` — Whether or not to upload the current file when saved, default: false
+* `useAtomicWrites` — Upload file using a temporary filename before moving to its final location (only used for SCP), default: false
 * `uploadMirrors` — transport mirror config array when upload
 * `deleteLocal` - whether or not to delete the local file / folder after remote delete
 * `saveOnUpload` - Whether or not to save a modified file before uploading, default: false
