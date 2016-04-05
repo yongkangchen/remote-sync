@@ -5,7 +5,7 @@ This package provides functionality for:
 * Uploading changes automatically when you save a file
 * Uploading/downloading files to/from the server
 * Displaying diffs between the local and remote files with your favourite diff tool
-* set difftoolPath in AtomSettingView of `remote-sync` — The path to your diff tool executable
+* set difftoolCommand in AtomSettingView of `remote-sync` — The path to your diff tool executable
 
 Currently, both SCP/SFTP and FTP are supported.
 
