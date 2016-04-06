@@ -85,27 +85,21 @@ class RemoteSync
     @getTransport().download(realPath)
 
   uploadFile: (filePath) ->
-    console.log('file-upload-1',filePath)
     return if @isIgnore(filePath)
 
-    console.log('file-upload-2',filePath)
     if not uploadCmd
       UploadListener = require "./UploadListener"
       uploadCmd = new UploadListener getLogger()
-      console.log('file-upload-3',filePath)
 
     if @host.saveOnUpload
       for e in atom.workspace.getTextEditors()
         if e.getPath() is filePath and e.isModified()
           e.save()
-          console.log('file-upload-4',filePath)
           return if @host.uploadOnSave
 
-    console.log('file-upload-5',filePath)
     uploadCmd.handleSave(filePath, @getTransport())
     for t in @getUploadMirrors()
       uploadCmd.handleSave(filePath, t)
-      console.log('file-upload-6',filePath)
 
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
@@ -117,8 +111,7 @@ class RemoteSync
       _this = @
       PathWatcher.watch dirPath, (event, path) ->
         if event is 'change'
-          console.log('file-changed',@.path)
-          _this.uploadFile(path)
+          _this.uploadFile(@.path)
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
