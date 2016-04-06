@@ -95,6 +95,7 @@ module.exports =
       'remote-sync:diff-file': (e)-> handleEvent(e, "diffFile")
       'remote-sync:diff-folder': (e)-> handleEvent(e, "diffFolder")
       'remote-sync:upload-git-change': (e)-> handleEvent(e, "uploadGitChange")
+      'remote-sync:monitor-file': (e)-> handleEvent(e, "monitorFile")
       'remote-sync:configure': configure
     })
 
