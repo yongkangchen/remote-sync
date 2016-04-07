@@ -1,7 +1,7 @@
 
 path = require "path"
 fs = require "fs-plus"
-PathWatcher = require 'pathwatcher'
+chokidar = require "chokidar"
 
 exec = null
 minimatch = null
@@ -108,10 +108,15 @@ class RemoteSync
   monitorFile: (dirPath)->
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
+      console.log("monitoring a file")
+      watcher = chokidar.watch(dirPath, {})
       _this = @
-      PathWatcher.watch dirPath, (event, path) ->
-        if event is 'change'
-          _this.uploadFile(@.path)
+      watcher.on('change', (path) ->
+        _this.uploadFile(path)
+        return
+      ).on 'unlink', (path) ->
+        log 'File', path, 'has been removed'
+        return
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
