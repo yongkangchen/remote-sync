@@ -117,6 +117,10 @@ class RemoteSync
       ).on 'unlink', (path) ->
         log 'File', path, 'has been removed'
         return
+    else
+      console.log("unmonitoring a file")
+      watcher = chokidar.watch(dirPath, {})
+      watcher.unwatch(dirPath);
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
