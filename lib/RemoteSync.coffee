@@ -17,6 +17,8 @@ HostView = null
 EventEmitter = null
 
 MonitoredFiles = []
+watcher        = chokidar.watch()
+
 
 logger = null
 getLogger = ->
@@ -109,18 +111,23 @@ class RemoteSync
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
       console.log("monitoring a file")
-      watcher = chokidar.watch(dirPath, {})
+      watcher.add(dirPath);
       _this = @
       watcher.on('change', (path) ->
         _this.uploadFile(path)
-        return
       ).on 'unlink', (path) ->
         log 'File', path, 'has been removed'
-        return
     else
       console.log("unmonitoring a file")
-      watcher = chokidar.watch(dirPath, {})
-      watcher.unwatch(dirPath);
+      watcher.unwatch(dirPath)
+      MonitoredFiles.splice(dirPath, 1)
+    @.monitorClasses()
+
+  monitorClasses: ()->
+    console.log('classes')
+    list_items = document.querySelectorAll '.file.entry.list-item'
+    for item in list_items
+      item.classList.toggle 'file-is-monitoring'
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
