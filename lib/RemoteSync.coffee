@@ -110,7 +110,6 @@ class RemoteSync
   monitorFile: (dirPath)->
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
-      console.log("monitoring a file")
       watcher.add(dirPath);
       _this = @
       watcher.on('change', (path) ->
@@ -118,16 +117,24 @@ class RemoteSync
       ).on 'unlink', (path) ->
         log 'File', path, 'has been removed'
     else
-      console.log("unmonitoring a file")
       watcher.unwatch(dirPath)
-      MonitoredFiles.splice(dirPath, 1)
-    @.monitorClasses()
+      index = MonitoredFiles.indexOf(dirPath);
+      MonitoredFiles.splice(index, 1)
+    @.monitorStyles()
 
-  monitorClasses: ()->
-    console.log('classes')
-    list_items = document.querySelectorAll '.file.entry.list-item'
-    for item in list_items
-      item.classList.toggle 'file-is-monitoring'
+  monitorStyles: ()->
+    monitorClass  = 'file-monitoring'
+    monitored     = document.querySelectorAll '.'+monitorClass
+
+    if monitored != null and monitored.length != 0
+      for item in monitored
+        item.classList.remove monitorClass
+
+    for file in MonitoredFiles
+      file_name = file.replace(/(['"])/g, "\\$1");
+      icon_file = document.querySelector '[data-path="'+file_name+'"]'
+      list_item = icon_file.parentNode
+      list_item.classList.add monitorClass
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
