@@ -9,13 +9,14 @@
     "atom": ">=0.78"
   },
   "dependencies": {
-    "ssh2": "^0.2",
-    "minimatch": "^0.2",
     "async": "^0.2",
-    "mkdirp": "^0.3",
     "atom-message-panel": "^1.1.1",
     "atom-space-pen-views": "^2.0.3",
+    "chokidar": "^1.4.3",
     "fs-plus": "^2.1",
-    "ftp": "^0.3.7"
+    "ftp": "^0.3.7",
+    "minimatch": "^0.2",
+    "mkdirp": "^0.3",
+    "ssh2": "^0.2"
   }
 }

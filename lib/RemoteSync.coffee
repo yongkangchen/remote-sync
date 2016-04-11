@@ -1,6 +1,7 @@
 
 path = require "path"
 fs = require "fs-plus"
+chokidar = require "chokidar"
 
 exec = null
 minimatch = null
@@ -14,6 +15,10 @@ Host = null
 
 HostView = null
 EventEmitter = null
+
+MonitoredFiles = []
+watcher        = chokidar.watch()
+
 
 logger = null
 getLogger = ->
@@ -29,7 +34,7 @@ class RemoteSync
     @host = new Host(@configPath)
     @initIgnore(@host)
     @projectPath = path.join(@projectPath, @host.source) if @host.source
-    
+
   initIgnore: (host)->
     ignore = host.ignore?.split(",")
     host.isIgnore = (filePath, relativizePath) =>
@@ -50,7 +55,7 @@ class RemoteSync
   inPath: (rootPath, localPath)->
     localPath = localPath + path.sep if fs.isDirectorySync(localPath)
     return localPath.indexOf(rootPath + path.sep) == 0
-    
+
   dispose: ->
     if @transport
       @transport.dispose()
@@ -93,7 +98,7 @@ class RemoteSync
         if e.getPath() is filePath and e.isModified()
           e.save()
           return if @host.uploadOnSave
-      
+
     uploadCmd.handleSave(filePath, @getTransport())
     for t in @getUploadMirrors()
       uploadCmd.handleSave(filePath, t)
@@ -101,6 +106,35 @@ class RemoteSync
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
+
+  monitorFile: (dirPath)->
+    if dirPath not in MonitoredFiles
+      MonitoredFiles.push dirPath
+      watcher.add(dirPath);
+      _this = @
+      watcher.on('change', (path) ->
+        _this.uploadFile(path)
+      ).on 'unlink', (path) ->
+        log 'File', path, 'has been removed'
+    else
+      watcher.unwatch(dirPath)
+      index = MonitoredFiles.indexOf(dirPath);
+      MonitoredFiles.splice(index, 1)
+    @.monitorStyles()
+
+  monitorStyles: ()->
+    monitorClass  = 'file-monitoring'
+    monitored     = document.querySelectorAll '.'+monitorClass
+
+    if monitored != null and monitored.length != 0
+      for item in monitored
+        item.classList.remove monitorClass
+
+    for file in MonitoredFiles
+      file_name = file.replace(/(['"])/g, "\\$1");
+      icon_file = document.querySelector '[data-path="'+file_name+'"]'
+      list_item = icon_file.parentNode
+      list_item.classList.add monitorClass
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()

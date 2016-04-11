@@ -6,6 +6,7 @@
       {label: 'Download File', command: 'remote-sync:download-file'}
       {label: 'Diff File', command: 'remote-sync:diff-file'}
       {label: 'Delete File', command: 'remote-sync:delete-file'}
+      {label: 'Monitor File (Upload on External Save)', command: 'remote-sync:monitor-file'}
     ]
   ]
 
