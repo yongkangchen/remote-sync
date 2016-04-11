@@ -143,6 +143,18 @@ class RemoteSync
         list_item = icon_file.parentNode
         list_item.classList.add monitorClass
 
+  monitorFilesList: ()->
+    files        = ""
+    watchedPaths = watcher.getWatched()
+    for k,v of watchedPaths
+      for file in watchedPaths[k]
+        files += file+"<br/>"
+    if files != ""
+      atom.notifications.addInfo "remote-sync: Currently watching:<br/>*"+files+"*"
+    else
+      atom.notifications.addWarning "remote-sync: Currently watching any files"
+
+
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
     curRepo = null
