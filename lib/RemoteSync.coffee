@@ -108,19 +108,25 @@ class RemoteSync
       return not @isIgnore(dirPath)
 
   monitorFile: (dirPath)->
+    fileName = @.monitorFileName(dirPath)
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
-      watcher.add(dirPath);
+      watcher.add(dirPath)
+      atom.notifications.addInfo "remote-sync: Watching file - *"+fileName+"*"
       _this = @
       watcher.on('change', (path) ->
         _this.uploadFile(path)
-      ).on 'unlink', (path) ->
-        log 'File', path, 'has been removed'
+      )
     else
       watcher.unwatch(dirPath)
-      index = MonitoredFiles.indexOf(dirPath);
+      index = MonitoredFiles.indexOf(dirPath)
       MonitoredFiles.splice(index, 1)
+      atom.notifications.addInfo "remote-sync: Unwatching file - *"+fileName+"*"
     @.monitorStyles()
+
+  monitorFileName: (dirPath)->
+    file = /[^/]*$/.exec(dirPath)[0];
+    return file
 
   monitorStyles: ()->
     monitorClass  = 'file-monitoring'
@@ -133,8 +139,21 @@ class RemoteSync
     for file in MonitoredFiles
       file_name = file.replace(/(['"])/g, "\\$1");
       icon_file = document.querySelector '[data-path="'+file_name+'"]'
-      list_item = icon_file.parentNode
-      list_item.classList.add monitorClass
+      if icon_file != null
+        list_item = icon_file.parentNode
+        list_item.classList.add monitorClass
+
+  monitorFilesList: ()->
+    files        = ""
+    watchedPaths = watcher.getWatched()
+    for k,v of watchedPaths
+      for file in watchedPaths[k]
+        files += file+"<br/>"
+    if files != ""
+      atom.notifications.addInfo "remote-sync: Currently watching:<br/>*"+files+"*"
+    else
+      atom.notifications.addWarning "remote-sync: Currently watching any files"
+
 
   uploadGitChange: (dirPath)->
     repos = atom.project.getRepositories()
