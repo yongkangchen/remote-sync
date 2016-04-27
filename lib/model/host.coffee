@@ -16,6 +16,7 @@ class Host
     @port?= ""
     @port = @port.toString()
     @ignore = @ignore.join(", ") if @ignore
+    @watch  = @watch.join(", ") if @watch
 
   saveJSON: ->
     configPath = @configPath
@@ -27,6 +28,10 @@ class Host
     @ignore?= ".remote-sync.json,.git/**"
     @ignore = @ignore.split(',')
     @ignore = (val.trim() for val in @ignore when val)
+
+    @watch  ?= ""
+    @watch   = @watch.split(',')
+    @watch   = (val.trim() for val in @watch when val)
 
     @transport?="scp"
 
