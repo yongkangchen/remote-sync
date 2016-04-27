@@ -125,11 +125,12 @@ class RemoteSync
     @.monitorStyles()
 
   monitorFileName: (dirPath)->
-    file = /[^/]*$/.exec(dirPath)[0];
+    file = dirPath.split('\\').pop().split('/').pop() # /[^/]*$/.exec(dirPath)[0];
     return file
 
   monitorStyles: ()->
     monitorClass  = 'file-monitoring'
+    pulseClass    = 'pulse'
     monitored     = document.querySelectorAll '.'+monitorClass
 
     if monitored != null and monitored.length != 0
@@ -138,10 +139,13 @@ class RemoteSync
 
     for file in MonitoredFiles
       file_name = file.replace(/(['"])/g, "\\$1");
+      file_name = file.replace(/\\/g, '\\\\');
       icon_file = document.querySelector '[data-path="'+file_name+'"]'
       if icon_file != null
         list_item = icon_file.parentNode
         list_item.classList.add monitorClass
+        if atom.config.get("remote-sync.monitorFileAnimation")
+          list_item.classList.add pulseClass
 
   monitorFilesList: ()->
     files        = ""
