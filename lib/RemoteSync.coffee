@@ -38,6 +38,7 @@ class RemoteSync
     if watchFiles?
       @initAutoFileWatch(@projectPath)
     @initIgnore(@host)
+    @initMonitor()
 
   initIgnore: (host)->
     ignore = host.ignore?.split(",")
@@ -110,6 +111,23 @@ class RemoteSync
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
+
+  initMonitor: ()->
+    _this = @
+    setTimeout ->
+      MutationObserver = window.MutationObserver or window.WebKitMutationObserver
+      observer = new MutationObserver((mutations, observer) ->
+        _this.monitorStyles()
+        return
+      )
+
+      targetObject = document.querySelector '.tree-view'
+      if targetObject != null
+        observer.observe targetObject,
+          subtree: true
+          attributes: false
+          childList: true
+    , 250
 
   monitorFile: (dirPath, toggle = true, notifications = true)->
     return if !@fileExists(dirPath)

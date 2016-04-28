@@ -4,6 +4,7 @@ This package provides functionality for:
 - Uploading/downloading files to/from the server
 - Displaying diffs between the local and remote files with your favourite diff tool
 - Monitoring files for external change and automatically upload
+- Define files to be watched for automatic monitoring when project loads
 - set difftoolCommand in AtomSettingView of `remote-sync` -- The path to your diff tool executable
 
 Currently, both SCP/SFTP and FTP are supported.
