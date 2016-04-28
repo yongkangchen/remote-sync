@@ -1,5 +1,9 @@
+![remote-sync](http://i.imgur.com/xBqYanL.png)
+
 # Atom Remote Sync
+
 This package provides functionality for:
+
 - Uploading changes automatically when you save a file
 - Uploading/downloading files to/from the server
 - Displaying diffs between the local and remote files with your favourite diff tool
@@ -9,13 +13,17 @@ This package provides functionality for:
 Currently, both SCP/SFTP and FTP are supported.
 
 ## Installation
+
 You can install this like any other Atom package, with one of these methods:
+
 - Open your settings in Atom, select the "Install" tab, search for "remote-sync", and click install on it
 - Run `apm install remote-sync` in a terminal
 - Download or clone this repository to your `~/.atom/packages/` directory and enter the directory run `apm install`
 
 ## Usage
+
 Create file `.remote-sync.json` in your project root with these settings:
+
 - `transport` -- `scp` for SCP/SFTP, or `ftp` for FTP
 - `hostname` -- Remote host address
 - `port` - Remort port to connect on (typically 22 for SCP/SFTP, 21 for FTP)
@@ -151,7 +159,9 @@ Upload mirrors example:
 ```
 
 ## Usage example
+
 ### Existing project
+
 1. Add a file named `.remote-sync.json` to your project, with the contents above
 2. Open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
 3. Type in `remote sync reload config` and press enter
@@ -159,6 +169,7 @@ Upload mirrors example:
 That's it!
 
 ### From scratch, with a remote server
+
 1. Create a folder for your project, and create a file named `.remote-sync.json` in it with the contents above
 2. In the Atom editor, open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
 3. Type in `remote sync reload config` and press enter
@@ -168,4 +179,5 @@ That's it!
 The package will download all of the files from the remote server for you.
 
 # Make a donation via Paypal ![Make a donation via Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)
+
 Click 'Send Money' after login PayPal, and my PayPal account is: lx1988cyk#gmail.com
