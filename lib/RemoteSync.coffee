@@ -1,4 +1,3 @@
-
 path = require "path"
 fs = require "fs-plus"
 chokidar = require "chokidar"
@@ -114,10 +113,10 @@ class RemoteSync
 
   monitorFile: (dirPath, toggle = true, notifications = true)->
     return if !@fileExists(dirPath)
+    return if !@isDirectory(dirPath)
     fileName = @.monitorFileName(dirPath)
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
-      console.log dirPath
       watcher.add(dirPath)
       if notifications
         atom.notifications.addInfo "remote-sync: Watching file - *"+fileName+"*"
@@ -125,7 +124,6 @@ class RemoteSync
       if !watchChangeSet
         _this = @
         watcher.on('change', (path) ->
-          console.log "change"
           _this.uploadFile(path)
         )
         watchChangeSet = true
@@ -168,16 +166,20 @@ class RemoteSync
       atom.notifications.addWarning "remote-sync: Currently not watching any files"
 
   fileExists: (dirPath) ->
-    file_path = dirPath.replace(/(['"])/g, "\\$1");
-    file_path = dirPath.replace(/\\/g, '\\\\');
     file_name = @monitorFileName(dirPath)
-    icon_file = document.querySelector '[data-path="'+file_path+'"]'
-
-    if icon_file?
+    try
+      exists = fs.statSync(dirPath)
       return true
+    catch e
+      atom.notifications.addWarning "remote-sync: cannot find *"+file_name+"* to watch"
+      return false
 
-    atom.notifications.addWarning "remote-sync: cannot find *"+file_name+"* for watching"
-    return false
+  isDirectory: (dirPath) ->
+    if directory = fs.statSync(dirPath).isDirectory()
+      atom.notifications.addWarning "remote-sync: cannot watch directory - *"+dirPath+"*"
+      return false
+
+    return true
 
   monitorFileName: (dirPath)->
     file = dirPath.split('\\').pop().split('/').pop()
