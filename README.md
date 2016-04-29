@@ -24,7 +24,7 @@ Use SFTP and FTP features inside Atom, having the ability to upload and download
 
 You can install this like any other Atom package, with one of these methods:
 
-## Via Atom (recommended)
+### Via Atom (recommended)
 
 - Open Atom
 - Open settings
