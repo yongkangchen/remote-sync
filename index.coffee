@@ -69,6 +69,11 @@ module.exports =
       default: false
       title: 'Hide log panel after transferring'
       description: 'Hides the status view at the bottom of the window after the transfer operation is done'
+    monitorFileAnimation:
+      type: 'boolean'
+      default: true
+      title: 'Monitor file animation'
+      description: 'Toggles the pulse animation for a monitored file'
     difftoolCommand:
       type: 'string'
       default: ''

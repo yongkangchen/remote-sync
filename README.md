@@ -4,6 +4,7 @@ This package provides functionality for:
 - Uploading/downloading files to/from the server
 - Displaying diffs between the local and remote files with your favourite diff tool
 - Monitoring files for external change and automatically upload
+- Define files to be watched for automatic monitoring when project loads
 - set difftoolCommand in AtomSettingView of `remote-sync` -- The path to your diff tool executable
 
 Currently, both SCP/SFTP and FTP are supported.
@@ -27,6 +28,7 @@ Create file `.remote-sync.json` in your project root with these settings:
 - `target` -- Target directory on remote host
 - `source` -- Source directory relative to project root
 - `ignore` -- Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
+- `watch` -- Array of files (relative to project root - starting with "/") to watch for changes
 - `uploadOnSave` -- Whether or not to upload the current file when saved, default: false
 - `useAtomicWrites` -- Upload file using a temporary filename before moving to its final location (only used for SCP), default: false
 - `uploadMirrors` -- transport mirror config array when upload
@@ -48,6 +50,10 @@ SCP example:
   "ignore": [
     ".remote-sync.json",
     ".git/**"
+  ],
+  "watch":[
+    "/css/styles.css",
+    "/index.html"
   ]
 }
 ```
@@ -65,6 +71,10 @@ SCP `useAgent` example:
   "ignore": [
     ".remote-sync.json",
     ".git/**"
+  ],
+  "watch":[
+    "/css/styles.css",
+    "/index.html"
   ]
 }
 ```
@@ -82,6 +92,10 @@ FTP example:
   "ignore": [
     ".remote-sync.json",
     ".git/**"
+  ],
+  "watch":[
+    "/css/styles.css",
+    "/index.html"
   ]
 }
 ```
@@ -101,6 +115,10 @@ Upload mirrors example:
   "ignore": [
     ".remote-sync.json",
     ".git/**"
+  ],
+  "watch":[
+    "/css/styles.css",
+    "/index.html"
   ],
   "uploadMirrors":[
     {

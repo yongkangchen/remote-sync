@@ -46,6 +46,9 @@ class ConfigView extends View
       @div class: 'block', outlet: 'ftpPasswordBlock', style: 'display:none', =>
         @label 'Password'
 
+      @label 'Watch automatically'
+      @subview 'watch', new TextEditorView(mini: true, placeholderText: "Files that will be automatically watched on project open")
+
       @div =>
         @label " uploadOnSave", =>
           @input type: 'checkbox', outlet: 'uploadOnSave'

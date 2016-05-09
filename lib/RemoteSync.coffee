@@ -1,4 +1,3 @@
-
 path = require "path"
 fs = require "fs-plus"
 chokidar = require "chokidar"
@@ -17,6 +16,8 @@ HostView = null
 EventEmitter = null
 
 MonitoredFiles = []
+watchFiles     = {}
+watchChangeSet = false
 watcher        = chokidar.watch()
 
 
@@ -32,8 +33,12 @@ class RemoteSync
     Host ?= require './model/host'
 
     @host = new Host(@configPath)
-    @initIgnore(@host)
+    watchFiles = @host.watch?.split(",").filter(Boolean)
     @projectPath = path.join(@projectPath, @host.source) if @host.source
+    if watchFiles?
+      @initAutoFileWatch(@projectPath)
+    @initIgnore(@host)
+    @initMonitor()
 
   initIgnore: (host)->
     ignore = host.ignore?.split(",")
@@ -107,29 +112,50 @@ class RemoteSync
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
 
-  monitorFile: (dirPath)->
+  initMonitor: ()->
+    _this = @
+    setTimeout ->
+      MutationObserver = window.MutationObserver or window.WebKitMutationObserver
+      observer = new MutationObserver((mutations, observer) ->
+        _this.monitorStyles()
+        return
+      )
+
+      targetObject = document.querySelector '.tree-view'
+      if targetObject != null
+        observer.observe targetObject,
+          subtree: true
+          attributes: false
+          childList: true
+    , 250
+
+  monitorFile: (dirPath, toggle = true, notifications = true)->
+    return if !@fileExists(dirPath)
+    return if !@isDirectory(dirPath)
     fileName = @.monitorFileName(dirPath)
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
       watcher.add(dirPath)
-      atom.notifications.addInfo "remote-sync: Watching file - *"+fileName+"*"
-      _this = @
-      watcher.on('change', (path) ->
-        _this.uploadFile(path)
-      )
-    else
+      if notifications
+        atom.notifications.addInfo "remote-sync: Watching file - *"+fileName+"*"
+
+      if !watchChangeSet
+        _this = @
+        watcher.on('change', (path) ->
+          _this.uploadFile(path)
+        )
+        watchChangeSet = true
+    else if toggle
       watcher.unwatch(dirPath)
       index = MonitoredFiles.indexOf(dirPath)
       MonitoredFiles.splice(index, 1)
-      atom.notifications.addInfo "remote-sync: Unwatching file - *"+fileName+"*"
+      if notifications
+        atom.notifications.addInfo "remote-sync: Unwatching file - *"+fileName+"*"
     @.monitorStyles()
-
-  monitorFileName: (dirPath)->
-    file = /[^/]*$/.exec(dirPath)[0];
-    return file
 
   monitorStyles: ()->
     monitorClass  = 'file-monitoring'
+    pulseClass    = 'pulse'
     monitored     = document.querySelectorAll '.'+monitorClass
 
     if monitored != null and monitored.length != 0
@@ -138,10 +164,13 @@ class RemoteSync
 
     for file in MonitoredFiles
       file_name = file.replace(/(['"])/g, "\\$1");
+      file_name = file.replace(/\\/g, '\\\\');
       icon_file = document.querySelector '[data-path="'+file_name+'"]'
       if icon_file != null
         list_item = icon_file.parentNode
         list_item.classList.add monitorClass
+        if atom.config.get("remote-sync.monitorFileAnimation")
+          list_item.classList.add pulseClass
 
   monitorFilesList: ()->
     files        = ""
@@ -152,7 +181,43 @@ class RemoteSync
     if files != ""
       atom.notifications.addInfo "remote-sync: Currently watching:<br/>*"+files+"*"
     else
-      atom.notifications.addWarning "remote-sync: Currently watching any files"
+      atom.notifications.addWarning "remote-sync: Currently not watching any files"
+
+  fileExists: (dirPath) ->
+    file_name = @monitorFileName(dirPath)
+    try
+      exists = fs.statSync(dirPath)
+      return true
+    catch e
+      atom.notifications.addWarning "remote-sync: cannot find *"+file_name+"* to watch"
+      return false
+
+  isDirectory: (dirPath) ->
+    if directory = fs.statSync(dirPath).isDirectory()
+      atom.notifications.addWarning "remote-sync: cannot watch directory - *"+dirPath+"*"
+      return false
+
+    return true
+
+  monitorFileName: (dirPath)->
+    file = dirPath.split('\\').pop().split('/').pop()
+    return file
+
+  initAutoFileWatch: (projectPath) ->
+    _this = @
+    if watchFiles.length != 0
+      _this.setupAutoFileWatch filesName,projectPath for filesName in watchFiles
+      setTimeout ->
+        _this.monitorFilesList()
+      , 1500
+      return
+
+  setupAutoFileWatch: (filesName,projectPath) ->
+    _this = @
+    setTimeout ->
+      fullpath = projectPath + filesName.replace /^\s+|\s+$/g, ""
+      _this.monitorFile(fullpath,false,false)
+    , 250
 
 
   uploadGitChange: (dirPath)->
