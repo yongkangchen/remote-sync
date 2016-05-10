@@ -220,5 +220,4 @@ The `.remote-sync.json` in your project root will use these options:
 
 # Make a donation via Paypal ![Make a donation via Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)
 
-Click 'Send Money' after login PayPal, and my PayPal account is: lx1988cyk#gmail.com com
-cyk#gmail.com com
+Click 'Send Money' after login PayPal, and my PayPal account is: lx1988cyk#gmail.com
