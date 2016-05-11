@@ -1,41 +1,108 @@
-# Atom Remote Sync
-This package provides functionality for:
-- Uploading changes automatically when you save a file
+![Atom Remote Sync](http://i.imgur.com/xBqYanL.png)
+
+# Atom Remote Sync [![Atom.io](https://img.shields.io/badge/Atom.io-1.7.3-40A977.svg)](https://atom.io) [![GitHub stars](https://img.shields.io/github/stars/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/stargazers) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/yongkangchen/remote-sync/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/issues)
+
+Use SFTP and FTP features inside Atom, having the ability to upload and download files directly from inside Atom.
+
+## Features
+
 - Uploading/downloading files to/from the server
 - Displaying diffs between the local and remote files with your favourite diff tool
-- Monitoring files for external change and automatically upload
-- Define files to be watched for automatic monitoring when project loads
-- set difftoolCommand in AtomSettingView of `remote-sync` -- The path to your diff tool executable
+- Monitoring files for external changes and automatically uploading - useful for scss/less compiling
+- Support for both SCP/SFTP and FTP
 
-Currently, both SCP/SFTP and FTP are supported.
+## Extras
+
+- Toggle for uploading changes automatically when you save a file
+- Define files to be monitored to be automatically monitoring
+- Set difftoolCommand in AtomSettingView of `remote-sync` -- The path to your diff tool executable
+- Toggle the logs for extra information
+- Toggle the hiding and showing of the log panel
+- Set custom config name
 
 ## Installation
+
 You can install this like any other Atom package, with one of these methods:
-- Open your settings in Atom, select the "Install" tab, search for "remote-sync", and click install on it
-- Run `apm install remote-sync` in a terminal
-- Download or clone this repository to your `~/.atom/packages/` directory and enter the directory run `apm install`
+
+### Via Atom (recommended)
+
+- Open Atom
+- Open settings
+
+  - <kbd>ctrl</kbd>+<kbd>,</kbd> | <kbd>cmd</kbd>+<kbd>,</kbd>
+  - Edit > Preferences (Linux)
+  - Atom > Preferences (OS X)
+  - File > Preferences (Windows)
+
+- Select "Install" tab
+- Search for `remote-sync` and click install
+
+### APM - terminal
+
+- Open a terminal
+- Run `apm install remote-sync`
+
+### Manually
+
+- Download / clone this repository to your `~/.atom/packages/`
+- Enter the directory
+- Run `apm install`
 
 ## Usage
-Create file `.remote-sync.json` in your project root with these settings:
-- `transport` -- `scp` for SCP/SFTP, or `ftp` for FTP
-- `hostname` -- Remote host address
-- `port` - Remort port to connect on (typically 22 for SCP/SFTP, 21 for FTP)
-- `username` -- Remote host username
-- `password` -- Remote host password
-- `keyfile` -- Absolute path to SSH key (only used for SCP)
-- `passphrase` -- Passphrase for the SSH key (only used for SCP)
-- `useAgent` -- Whether or not to use an agent process, default: false (only used for SCP)
-- `target` -- Target directory on remote host
-- `source` -- Source directory relative to project root
-- `ignore` -- Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore
-- `watch` -- Array of files (relative to project root - starting with "/") to watch for changes
-- `uploadOnSave` -- Whether or not to upload the current file when saved, default: false
-- `useAtomicWrites` -- Upload file using a temporary filename before moving to its final location (only used for SCP), default: false
-- `uploadMirrors` -- transport mirror config array when upload
-- `deleteLocal` - whether or not to delete the local file / folder after remote delete
-- `saveOnUpload` - Whether or not to save a modified file before uploading, default: false
 
-SCP example:
+You can configure remote sync a couple of ways:
+
+### Existing project
+
+#### Via Atom (recommended)
+
+1. Right click main project folder
+2. Navigate to Remote Sync > Configure
+3. Fill in the details / select options
+4. Hit save
+
+#### Manually
+
+1. Add a file named `.remote-sync.json` to your project
+2. Add/configure with one of the contents below
+3. Save the file
+
+### From scratch, with a remote server
+
+1. Follow setups for creating existing project - see above
+1. Right click main project folder
+2. Navigate to Remote Sync > Download folder
+
+
+## Options
+
+The `.remote-sync.json` in your project root will use these options:
+
+
+| Option            | Datatype | Default                         | Details                                                                                        |
+|-------------------|----------|---------------------------------|------------------------------------------------------------------------------------------------|
+| `transport`       | String   | ""                              | `scp` for SCP/SFTP, or `ftp` for FTP                                                           |
+| `hostname`        | String   | ""                              | Remote host address                                                                            |
+| `port`            | String   | ""                              | Remort port to connect on (typically 22 for SCP/SFTP, 21 for FTP)                              |
+| `username`        | String   | ""                              | Remote host username                                                                           |
+| `password`        | String   | ""                              | Remote host password                                                                           |
+| `keyfile`         | String   | ""                              | Absolute path to SSH key (only used for SCP)                                                   |
+| `passphrase`      | String   | ""                              | Passphrase for the SSH key (only used for SCP)                                                 |
+| `useAgent`        | String   | false                           | Whether or not to use an agent process (only used for SCP)                                     |
+| `target`          | String   | ""                              | Target directory on remote host                                                                |
+| `source`          | String   | ""                              | Source directory relative to project root                                                      |
+| `ignore`          | Array    | [".remote-sync.json",".git/**"] | Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore          |
+| `watch`           | Array    | []                              | Array of files (relative to project root - starting with "/") to watch for changes             |
+| `uploadMirrors`   | Array    | []                              | Transport mirror config array when upload                                                      |
+| `uploadOnSave`    | Boolean  | false                           | Whether or not to upload the current file when saved                                           |
+| `saveOnUpload`    | Boolean  | false                           | Whether or not to save a modified file before uploading                                        |
+| `useAtomicWrites` | Boolean  | false                           | Upload file using a temporary filename before moving to its final location (only used for SCP) |
+| `deleteLocal`     | Boolean  | false                           | Whether or not to delete the local file / folder after remote delete                           |
+
+
+## Example configuration's
+
+### SCP example:
 
 ```json
 {
@@ -58,7 +125,7 @@ SCP example:
 }
 ```
 
-SCP `useAgent` example:
+### SCP `useAgent` example:
 
 ```json
 {
@@ -79,7 +146,7 @@ SCP `useAgent` example:
 }
 ```
 
-FTP example:
+### FTP example:
 
 ```json
 {
@@ -100,7 +167,7 @@ FTP example:
 }
 ```
 
-Upload mirrors example:
+### Upload mirrors example:
 
 ```json
 {
@@ -151,22 +218,6 @@ Upload mirrors example:
 }
 ```
 
-## Usage example
-### Existing project
-1. Add a file named `.remote-sync.json` to your project, with the contents above
-2. Open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
-3. Type in `remote sync reload config` and press enter
-
-That's it!
-
-### From scratch, with a remote server
-1. Create a folder for your project, and create a file named `.remote-sync.json` in it with the contents above
-2. In the Atom editor, open the command palette by pressing cmd + shift + P on a Mac, or ctrl + shift + P on Linux/Windows
-3. Type in `remote sync reload config` and press enter
-4. Open the command palette again
-5. Input `remote sync download all`
-
-The package will download all of the files from the remote server for you.
-
 # Make a donation via Paypal ![Make a donation via Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)
+
 Click 'Send Money' after login PayPal, and my PayPal account is: lx1988cyk#gmail.com
