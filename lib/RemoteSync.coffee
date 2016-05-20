@@ -215,7 +215,8 @@ class RemoteSync
   setupAutoFileWatch: (filesName,projectPath) ->
     _this = @
     setTimeout ->
-      filesName = filesName.replace(/\//g, '\\')
+      if process.platform == "win32"
+        filesName = filesName.replace(/\//g, '\\')
       fullpath = projectPath + filesName.replace /^\s+|\s+$/g, ""
       _this.monitorFile(fullpath,false,false)
     , 250
