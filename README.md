@@ -4,8 +4,7 @@
 
 Use SFTP and FTP features inside Atom, having the ability to upload and download files directly from inside Atom.
 
-![remote-sync demo](http://i.imgur.com/m3Ctd92.gifv "remote-sync demo gif")
-
+![remote-sync demo](http://i.imgur.com/m3Ctd92.gif "remote-sync demo gif")
 
 ## Features
 
