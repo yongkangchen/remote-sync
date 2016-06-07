@@ -1,23 +1,24 @@
 'context-menu':
-  'atom-text-editor, .tree-view.full-menu .file':[
-    label: 'Remote Sync',
-    submenu:[
-      {label: 'Upload File', command: 'remote-sync:upload-file'}
-      {label: 'Download File', command: 'remote-sync:download-file'}
-      {label: 'Diff File', command: 'remote-sync:diff-file'}
-      {label: 'Delete File', command: 'remote-sync:delete-file'}
-      {label: 'Monitor File (Upload on External Save)', command: 'remote-sync:monitor-file'}
+    'atom-text-editor, .tree-view.full-menu .file':[
+        label: 'Remote Sync',
+        submenu:[
+            {label: 'Upload File', command: 'remote-sync:upload-file'}
+            {label: 'Download File', command: 'remote-sync:download-file'}
+            {label: 'Diff File', command: 'remote-sync:diff-file'}
+            {label: 'Delete File', command: 'remote-sync:delete-file'}
+            {label: 'Monitor File (Upload on External Save)', command: 'remote-sync:monitor-file'}
+        ]
     ]
-  ]
 
-  '.tree-view.full-menu .header.list-item':[
-    label: 'Remote Sync',
-    submenu:[
-      {label: 'Configure', command: 'remote-sync:configure'}
-      {label: 'Upload Folder', command: 'remote-sync:upload-folder'}
-      {label: 'Upload Folder Change', command: 'remote-sync:upload-git-change'}
-      {label: 'Download Folder', command: 'remote-sync:download-folder'}
-      {label: 'Diff Folder', command: 'remote-sync:diff-folder'}
-      {label: 'Delete Folder', command: 'remote-sync:delete-folder'}
+    '.tree-view.full-menu .header.list-item':[
+        label: 'Remote Sync',
+        submenu:[
+            {label: 'Configure', command: 'remote-sync:configure'}
+            {label: 'Upload Folder', command: 'remote-sync:upload-folder'}
+            {label: 'Upload Folder Change', command: 'remote-sync:upload-git-change'}
+            {label: 'Download Folder', command: 'remote-sync:download-folder'}
+            {label: 'Diff Folder', command: 'remote-sync:diff-folder'}
+            {label: 'Delete Folder', command: 'remote-sync:delete-folder'}
+            {label: 'Monitor Folder (Upload on External Save)', command: 'remote-sync:monitor-folder'}
+        ]
     ]
-  ]

@@ -131,7 +131,6 @@ class RemoteSync
 
   monitorFile: (dirPath, toggle = true, notifications = true)->
     return if !@fileExists(dirPath)
-    return if !@isDirectory(dirPath)
     fileName = @.monitorFileName(dirPath)
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
@@ -153,22 +152,37 @@ class RemoteSync
         atom.notifications.addInfo "remote-sync: Unwatching file - *"+fileName+"*"
     @.monitorStyles()
 
-  monitorStyles: ()->
-    monitorClass  = 'file-monitoring'
-    pulseClass    = 'pulse'
-    monitored     = document.querySelectorAll '.'+monitorClass
+  monitorFolder: (dirPath)->
+    console.log "monitorFolder",dirPath
+    @.monitorFile(dirPath)
 
-    if monitored != null and monitored.length != 0
-      for item in monitored
-        item.classList.remove monitorClass
+  monitorStyles: ()->
+    monitorFileClass  = 'file-monitoring'
+    monitorFolderClass  = 'folder-monitoring'
+    pulseClass    = 'pulse'
+    filesMonitored = document.querySelectorAll '.'+monitorFileClass
+    foldersMonitored = document.querySelectorAll '.'+monitorFolderClass
+
+    if filesMonitored != null and filesMonitored.length != 0
+      for item in filesMonitored
+        item.classList.remove monitorFileClass
+        item.classList.remove pulseClass
+
+    if foldersMonitored != null and foldersMonitored.length != 0
+      for item in foldersMonitored
+        item.classList.remove monitorFolderClass
+        item.classList.remove pulseClass
 
     for file in MonitoredFiles
-      file_name = file.replace(/(['"])/g, "\\$1");
-      file_name = file.replace(/\\/g, '\\\\');
-      icon_file = document.querySelector '[data-path="'+file_name+'"]'
+      location_path = file.replace(/(['"])/g, "\\$1");
+      location_path = location_path.replace(/\\/g, '\\\\');
+      isDirectory = @.isDirectory(location_path)
+      icon_file = document.querySelector '[data-path="'+location_path+'"]'
       if icon_file != null
-        list_item = icon_file.parentNode
-        list_item.classList.add monitorClass
+        list_item = if isDirectory then icon_file.parentNode.parentNode else icon_file.parentNode
+        theClass = if isDirectory then monitorFolderClass else monitorFileClass
+        console.log theClass
+        list_item.classList.add theClass
         if atom.config.get("remote-sync.monitorFileAnimation")
           list_item.classList.add pulseClass
 
@@ -194,10 +208,9 @@ class RemoteSync
 
   isDirectory: (dirPath) ->
     if directory = fs.statSync(dirPath).isDirectory()
-      atom.notifications.addWarning "remote-sync: cannot watch directory - *"+dirPath+"*"
-      return false
+      return true
 
-    return true
+    return false
 
   monitorFileName: (dirPath)->
     file = dirPath.split('\\').pop().split('/').pop()

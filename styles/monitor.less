@@ -3,7 +3,8 @@
 // See https://github.com/atom/atom-dark-ui/blob/master/styles/ui-variables.less
 // for a full listing of what's available.
 @import "ui-variables";
-.file-monitoring {
+.file-monitoring,
+.folder-monitoring {
     &:after {
         content: "M";
         width: 20px;
@@ -11,19 +12,35 @@
         color: @text-color-success;
         position: absolute;
         left: 10px;
+        left: 0;
         text-align: center;
         border-radius: 50%;
         line-height: 20px;
     }
     &.pulse {
         &:after {
-            -webkit-animation-name: greenPulse;
+            -webkit-animation-name: successPulse;
             -webkit-animation-duration: 2s;
             -webkit-animation-iteration-count: infinite;
         }
     }
 }
-@-webkit-keyframes greenPulse {
+.folder-monitoring {
+    position: relative;
+    &:after {
+        left: -3px;
+        top: 0;
+        color: @text-color-warning;
+    }
+    &.pulse {
+        &:after {
+            -webkit-animation-name: warningPulse;
+            -webkit-animation-duration: 2s;
+            -webkit-animation-iteration-count: infinite;
+        }
+    }
+}
+@-webkit-keyframes successPulse {
     from {
         -webkit-box-shadow: 0 0 9px transparentize(@text-color-success,0.8);
     }
@@ -32,5 +49,16 @@
     }
     to {
         -webkit-box-shadow: 0 0 9px transparentize(@text-color-success,0.8);
+    }
+}
+@-webkit-keyframes warningPulse {
+    from {
+        -webkit-box-shadow: 0 0 9px transparentize(@text-color-warning,0.8);
+    }
+    50% {
+        -webkit-box-shadow: 0 0 18px darken(@text-color-warning,10%);
+    }
+    to {
+        -webkit-box-shadow: 0 0 9px transparentize(@text-color-warning,0.8);
     }
 }
