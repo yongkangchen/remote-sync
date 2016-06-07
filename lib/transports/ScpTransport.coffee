@@ -38,9 +38,12 @@ class ScpTransport
 
   upload: (localFilePath, callback) ->
     fs = require "fs" if not fs
-    targetFilePath = path.join(@settings.target,
-                          path.relative(fs.realpathSync(@projectPath), fs.realpathSync(localFilePath)))
-                          .replace(/\\/g, "/")
+    target = if @settings.target then @settings.target else ""
+    realpathSyncProject = if fs.realpathSync(@projectPath) then fs.realpathSync(@projectPath) else ""
+    realpathSyncLocal = if fs.realpathSync(localFilePath) then fs.realpathSync(localFilePath) else ""
+    targetFilePath = path.join(target,
+                               path.relative(realpathSyncProject,realpathSyncLocal))
+    								 .replace(/\\/g, "/")
 
     errorHandler = (err) =>
       @logger.error err
@@ -154,7 +157,7 @@ class ScpTransport
       privateKey = fs.readFileSync keyfile
     else
       privateKey = null
-      
+
     agent = switch
       when useAgent is true
         if /windows/i.test process.env['OS']
@@ -165,7 +168,7 @@ class ScpTransport
         useAgent
       else
         null
-    
+
     connection.connect
       host: hostname
       port: port

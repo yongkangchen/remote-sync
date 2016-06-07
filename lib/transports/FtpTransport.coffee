@@ -34,8 +34,11 @@ class FtpTransport
         callback()
 
   upload: (localFilePath, callback) ->
-    targetFilePath = path.join(@settings.target,
-                                path.relative(@projectPath, localFilePath))
+    target = if @settings.target then @settings.target else ""
+    realpathSyncProject = if @projectPath then @projectPath else ""
+    realpathSyncLocal = if localFilePath then localFilePath else ""
+    targetFilePath = path.join(target,
+                                path.relative(realpathSyncProject,realpathSyncLocal))
                                 .replace(/\\/g, "/")
 
     errorHandler = (err) =>
