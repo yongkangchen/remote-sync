@@ -1,6 +1,7 @@
 path = require "path"
 fs = require "fs-plus"
 chokidar = require "chokidar"
+isValidGlob = require('is-valid-glob');
 
 exec = null
 minimatch = null
@@ -112,9 +113,11 @@ class RemoteSync
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
 
+  # init monitor function called on init of remote sync
   initMonitor: ()->
     _this = @
     setTimeout ->
+      # add on observer to the tree view so we can re add styles
       MutationObserver = window.MutationObserver or window.WebKitMutationObserver
       observer = new MutationObserver((mutations, observer) ->
         _this.monitorStyles()
@@ -129,29 +132,57 @@ class RemoteSync
           childList: true
     , 250
 
+    # if not already init create a watcher
+    if !watchChangeSet
+      _this = @
+      watcher.on('change', (path) ->
+        _this.uploadFile(path)
+      )
+      watchChangeSet = true
+
+  # function called to toggle monitor file/folder
   monitorFile: (dirPath, toggle = true, notifications = true)->
-    return if !@fileExists(dirPath)
-    fileName = @.monitorFileName(dirPath)
+    return if !@fileExists(dirPath) # check if file exists
+    fileName = @.monitorFileName(dirPath) #get just file name - used for notifations
+
+    # check if path not alread being monitored
     if dirPath not in MonitoredFiles
-      MonitoredFiles.push dirPath
-      watcher.add(dirPath)
+      @.monitorWatch(dirPath) # monitor
+
+      # if notifications
       if notifications
         @.monitorNotification(fileName,false,@.isDirectory(dirPath))
 
-      if !watchChangeSet
-        _this = @
-        watcher.on('change', (path) ->
-          _this.uploadFile(path)
-        )
-        watchChangeSet = true
+    # else if toggle is enabled
     else if toggle
-      watcher.unwatch(dirPath)
-      index = MonitoredFiles.indexOf(dirPath)
-      MonitoredFiles.splice(index, 1)
+      @.monitorUnwatch(dirPath) # un-monitor
+
+      # if notifications
       if notifications
         @.monitorNotification(fileName,true,@.isDirectory(dirPath))
+
+    # run monitor styles check
     @.monitorStyles()
 
+  # creates monitoring of a glob string
+  monitorGlob: (dirPath)->
+    return if !isValidGlob(dirPath)
+    console.log "monitor glob please", dirPath
+
+  # basic monitor function
+  # starts the watching of file/folder/glob/etc..
+  monitorWatch: (dirPath)->
+    MonitoredFiles.push dirPath
+    watcher.add(dirPath)
+
+  # basic unmonitor function
+  # unwatching of file/folder/glob/etc..
+  monitorUnwatch: (dirPath)->
+    watcher.unwatch(dirPath)
+    index = MonitoredFiles.indexOf(dirPath)
+    MonitoredFiles.splice(index, 1)
+
+  # builds a string to output monitor notice
   monitorNotification: (fileName = "", watching = true, isFolder = false) ->
     notice  = if watching then "Unwatching" else "Watching"
     type    = if isFolder then "folder" else "file"
@@ -159,9 +190,12 @@ class RemoteSync
 
     atom.notifications.addInfo message
 
+  # monitor folder method calls the monitor file method passing in a folder path
   monitorFolder: (dirPath)->
     @.monitorFile(dirPath)
 
+  # monitor styles
+  # monitor styles makes sure that each folder/file has the correct css styles
   monitorStyles: ()->
     monitorFileClass  = 'file-monitoring'
     monitorFolderClass  = 'folder-monitoring'
@@ -169,40 +203,57 @@ class RemoteSync
     filesMonitored = document.querySelectorAll '.'+monitorFileClass
     foldersMonitored = document.querySelectorAll '.'+monitorFolderClass
 
+    #clean up styles
+
+    # loop though all files removing any styles
     if filesMonitored != null and filesMonitored.length != 0
       for item in filesMonitored
         item.classList.remove monitorFileClass
         item.classList.remove pulseClass
 
+    # loop though all folders removing any styles
     if foldersMonitored != null and foldersMonitored.length != 0
       for item in foldersMonitored
         item.classList.remove monitorFolderClass
         item.classList.remove pulseClass
 
+    # loop though the monitored files list / contains all files/folders/glob
     for file in MonitoredFiles
-      location_path = file.replace(/(['"])/g, "\\$1");
-      location_path = location_path.replace(/\\/g, '\\\\');
-      isDirectory = @.isDirectory(location_path)
+      # escape a few things to make the strings safe
+      location_path = file.replace(/(['"])/g, "\\$1"); #escape '
+      location_path = location_path.replace(/\\/g, '\\\\'); #escape back-slash
+      isDirectory = @.isDirectory(location_path) # check if path is file or folder
+
+      #look up the path location in the tree-view
       icon_file = document.querySelector '[data-path="'+location_path+'"]'
+      #check if found
       if icon_file != null
-        list_item = if isDirectory then icon_file.parentNode.parentNode else icon_file.parentNode
-        theClass = if isDirectory then monitorFolderClass else monitorFileClass
-        console.log theClass
-        list_item.classList.add theClass
+        #build some classes based upon directory type
+        list_item = if isDirectory then icon_file.parentNode.parentNode else icon_file.parentNode #if directory check 2 parents high
+        theClass = if isDirectory then monitorFolderClass else monitorFileClass # get the correct style class
+        list_item.classList.add theClass # add the style class
+        # if animation is enabled add class
         if atom.config.get("remote-sync.monitorFileAnimation")
           list_item.classList.add pulseClass
 
+  # lists all current paths being watchedPaths
+  # this list comes from the watcher not the monitorFilesList
   monitorFilesList: ()->
-    files        = ""
-    watchedPaths = watcher.getWatched()
+    files        = "" # empty var to hold strings
+    watchedPaths = watcher.getWatched() # request all watched paths
+    # loop thought all paths building a string
     for k,v of watchedPaths
       for file in watchedPaths[k]
         files += file+"<br/>"
+
+    # if files list is not empty output which files are being watchedPaths
+    # else inform that nothing is being watched
     if files != ""
       atom.notifications.addInfo "remote-sync: Currently watching:<br/>*"+files+"*"
     else
       atom.notifications.addWarning "remote-sync: Currently not watching any files"
 
+  # method that checks if a file is found
   fileExists: (dirPath) ->
     file_name = @monitorFileName(dirPath)
     try
@@ -212,32 +263,46 @@ class RemoteSync
       atom.notifications.addWarning "remote-sync: cannot find *"+file_name+"* to watch"
       return false
 
+  # method that checks is a directory
   isDirectory: (dirPath) ->
     if directory = fs.statSync(dirPath).isDirectory()
       return true
 
     return false
 
+  # get the file name from the path
   monitorFileName: (dirPath)->
     file = dirPath.split('\\').pop().split('/').pop()
     return file
 
+  # method called if any files watch files are found in the config
   initAutoFileWatch: (projectPath) ->
     _this = @
     if watchFiles.length != 0
+      # runs thought the setup files then calls monitor files list on complete
       _this.setupAutoFileWatch filesName,projectPath for filesName in watchFiles
       setTimeout ->
         _this.monitorFilesList()
       , 1500
       return
 
+  # runs thought all strings in the watch list to create a watch method
   setupAutoFileWatch: (filesName,projectPath) ->
     _this = @
     setTimeout ->
       if process.platform == "win32"
-        filesName = filesName.replace(/\//g, '\\')
+        filesName = filesName.replace(/\//g, '\\') # sort out windows slash escapes
+
+      # get full path
       fullpath = projectPath + filesName.replace /^\s+|\s+$/g, ""
-      _this.monitorFile(fullpath,false,false)
+
+      # if is not a glob
+      # pass to the monitor file function
+      # else pass to the monitorGlob function
+      if !isValidGlob(fullpath)
+        _this.monitorFile(fullpath,false,false)
+      else if isValidGlob(fullpath)
+        _this.monitorGlob(fullpath);
     , 250
 
 
