@@ -8,21 +8,21 @@
     .name {
         &:after {
             content: "M";
-            width: 20px;
-            height: 20px;
             color: @text-color-success;
-            position: absolute;
-            text-align: center;
-            border-radius: 50%;
-            line-height: 20px;
+            margin-left: 5px;
         }
     }
     &.pulse {
         .name {
             &:after {
-                -webkit-animation-name: successPulse;
-                -webkit-animation-duration: 2s;
-                -webkit-animation-iteration-count: infinite;
+                content: "\2026";
+                color: @text-color-success;
+                overflow: hidden;
+                display: inline-block;
+                vertical-align: bottom;
+                animation: ellipsis steps(4,end) 900ms infinite;
+                width: 0;
+                margin-left: 0;
             }
         }
     }
@@ -36,32 +36,13 @@
     &.pulse {
         .name {
             &:after {
-                -webkit-animation-name: warningPulse;
-                -webkit-animation-duration: 2s;
-                -webkit-animation-iteration-count: infinite;
+                color: @text-color-warning;
             }
         }
     }
 }
-@-webkit-keyframes successPulse {
-    from {
-        -webkit-box-shadow: 0 0 9px transparentize(@text-color-success,0.8);
-    }
-    50% {
-        -webkit-box-shadow: 0 0 18px darken(@text-color-success,10%);
-    }
+@keyframes ellipsis {
     to {
-        -webkit-box-shadow: 0 0 9px transparentize(@text-color-success,0.8);
-    }
-}
-@-webkit-keyframes warningPulse {
-    from {
-        -webkit-box-shadow: 0 0 9px transparentize(@text-color-warning,0.8);
-    }
-    50% {
-        -webkit-box-shadow: 0 0 18px darken(@text-color-warning,10%);
-    }
-    to {
-        -webkit-box-shadow: 0 0 9px transparentize(@text-color-warning,0.8);
+        width: 1.25em;
     }
 }
