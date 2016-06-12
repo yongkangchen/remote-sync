@@ -5,38 +5,41 @@
 @import "ui-variables";
 .file-monitoring,
 .folder-monitoring {
-    &:after {
-        content: "M";
-        width: 20px;
-        height: 20px;
-        color: @text-color-success;
-        position: absolute;
-        left: 10px;
-        left: 0;
-        text-align: center;
-        border-radius: 50%;
-        line-height: 20px;
+    .name {
+        &:after {
+            content: "M";
+            width: 20px;
+            height: 20px;
+            color: @text-color-success;
+            position: absolute;
+            text-align: center;
+            border-radius: 50%;
+            line-height: 20px;
+        }
     }
     &.pulse {
-        &:after {
-            -webkit-animation-name: successPulse;
-            -webkit-animation-duration: 2s;
-            -webkit-animation-iteration-count: infinite;
+        .name {
+            &:after {
+                -webkit-animation-name: successPulse;
+                -webkit-animation-duration: 2s;
+                -webkit-animation-iteration-count: infinite;
+            }
         }
     }
 }
 .folder-monitoring {
-    position: relative;
-    &:after {
-        left: -3px;
-        top: 0;
-        color: @text-color-warning;
+    .name {
+        &:after {
+            color: @text-color-warning;
+        }
     }
     &.pulse {
-        &:after {
-            -webkit-animation-name: warningPulse;
-            -webkit-animation-duration: 2s;
-            -webkit-animation-iteration-count: infinite;
+        .name {
+            &:after {
+                -webkit-animation-name: warningPulse;
+                -webkit-animation-duration: 2s;
+                -webkit-animation-iteration-count: infinite;
+            }
         }
     }
 }

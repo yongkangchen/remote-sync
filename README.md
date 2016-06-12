@@ -10,7 +10,7 @@ Use SFTP and FTP features inside Atom, having the ability to upload and download
 
 - Uploading/downloading files to/from the server
 - Displaying diffs between the local and remote files with your favourite diff tool
-- Monitoring files for external changes and automatically uploading - useful for scss/less compiling
+- Monitoring files/folders for external changes and automatically uploading - useful for scss/less compiling
 - Support for both SCP/SFTP and FTP
 
 ## Extras

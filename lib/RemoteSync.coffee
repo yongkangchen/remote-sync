@@ -136,7 +136,7 @@ class RemoteSync
       MonitoredFiles.push dirPath
       watcher.add(dirPath)
       if notifications
-        atom.notifications.addInfo "remote-sync: Watching file - *"+fileName+"*"
+        @.monitorNotification(fileName,false,@.isDirectory(dirPath))
 
       if !watchChangeSet
         _this = @
@@ -149,11 +149,17 @@ class RemoteSync
       index = MonitoredFiles.indexOf(dirPath)
       MonitoredFiles.splice(index, 1)
       if notifications
-        atom.notifications.addInfo "remote-sync: Unwatching file - *"+fileName+"*"
+        @.monitorNotification(fileName,true,@.isDirectory(dirPath))
     @.monitorStyles()
 
+  monitorNotification: (fileName = "", watching = true, isFolder = false) ->
+    notice  = if watching then "Unwatching" else "Watching"
+    type    = if isFolder then "folder" else "file"
+    message = "remote-sync: "+notice+" "+type+" - *"+fileName+"*"
+
+    atom.notifications.addInfo message
+
   monitorFolder: (dirPath)->
-    console.log "monitorFolder",dirPath
     @.monitorFile(dirPath)
 
   monitorStyles: ()->
