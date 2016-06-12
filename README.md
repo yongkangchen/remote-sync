@@ -8,19 +8,19 @@ Use SFTP and FTP features inside Atom, having the ability to upload and download
 
 ## Features
 
-- Uploading/downloading files to/from the server
-- Displaying diffs between the local and remote files with your favourite diff tool
-- Monitoring files/folders for external changes and automatically uploading - useful for scss/less compiling
-- Support for both SCP/SFTP and FTP
+-   Uploading/downloading files to/from the server
+-   Displaying diffs between the local and remote files with your favourite diff tool
+-   Monitoring files/folders for external changes and automatically uploading - useful for scss/less compiling (Now supporting wildcards - _beta_)
+-   Support for both SCP/SFTP and FTP
 
 ## Extras
 
-- Toggle for uploading changes automatically when you save a file
-- Define files to be monitored to be automatically monitoring
-- Set difftoolCommand in AtomSettingView of `remote-sync` -- The path to your diff tool executable
-- Toggle the logs for extra information
-- Toggle the hiding and showing of the log panel
-- Set custom config name
+-   Toggle for uploading changes automatically when you save a file
+-   Define files to be monitored to be automatically monitoring
+-   Set difftoolCommand in AtomSettingView of `remote-sync` -- The path to your diff tool executable
+-   Toggle the logs for extra information
+-   Toggle the hiding and showing of the log panel
+-   Set custom config name
 
 ## Installation
 
@@ -28,27 +28,27 @@ You can install this like any other Atom package, with one of these methods:
 
 ### Via Atom (recommended)
 
-- Open Atom
-- Open settings
+-   Open Atom
+-   Open settings
 
-  - <kbd>ctrl</kbd>+<kbd>,</kbd> | <kbd>cmd</kbd>+<kbd>,</kbd>
-  - Edit > Preferences (Linux)
-  - Atom > Preferences (OS X)
-  - File > Preferences (Windows)
+    -   <kbd>ctrl</kbd>+<kbd>,</kbd> \| <kbd>cmd</kbd>+<kbd>,</kbd>
+    -   Edit > Preferences (Linux)
+    -   Atom > Preferences (OS X)
+    -   File > Preferences (Windows)
 
-- Select "Install" tab
-- Search for `remote-sync` and click install
+-   Select "Install" tab
+-   Search for `remote-sync` and click install
 
 ### APM - terminal
 
-- Open a terminal
-- Run `apm install remote-sync`
+-   Open a terminal
+-   Run `apm install remote-sync`
 
 ### Manually
 
-- Download / clone this repository to your `~/.atom/packages/`
-- Enter the directory
-- Run `apm install`
+-   Download / clone this repository to your `~/.atom/packages/`
+-   Enter the directory
+-   Run `apm install`
 
 ## Usage
 
@@ -58,49 +58,46 @@ You can configure remote sync a couple of ways:
 
 #### Via Atom (recommended)
 
-1. Right click main project folder
-2. Navigate to Remote Sync > Configure
-3. Fill in the details / select options
-4. Hit save
+1.  Right click main project folder
+2.  Navigate to Remote Sync > Configure
+3.  Fill in the details / select options
+4.  Hit save
 
 #### Manually
 
-1. Add a file named `.remote-sync.json` to your project
-2. Add/configure with one of the contents below
-3. Save the file
+1.  Add a file named `.remote-sync.json` to your project
+2.  Add/configure with one of the contents below
+3.  Save the file
 
 ### From scratch, with a remote server
 
-1. Follow setups for creating existing project - see above
-1. Right click main project folder
-2. Navigate to Remote Sync > Download folder
-
+1.  Follow setups for creating existing project - see above
+2.  Right click main project folder
+3.  Navigate to Remote Sync > Download folder
 
 ## Options
 
 The `.remote-sync.json` in your project root will use these options:
 
-
-| Option            | Datatype | Default                         | Details                                                                                        |
-|-------------------|----------|---------------------------------|------------------------------------------------------------------------------------------------|
-| `transport`       | String   | ""                              | `scp` for SCP/SFTP, or `ftp` for FTP                                                           |
-| `hostname`        | String   | ""                              | Remote host address                                                                            |
-| `port`            | String   | ""                              | Remort port to connect on (typically 22 for SCP/SFTP, 21 for FTP)                              |
-| `username`        | String   | ""                              | Remote host username                                                                           |
-| `password`        | String   | ""                              | Remote host password                                                                           |
-| `keyfile`         | String   | ""                              | Absolute path to SSH key (only used for SCP)                                                   |
-| `passphrase`      | String   | ""                              | Passphrase for the SSH key (only used for SCP)                                                 |
-| `useAgent`        | String   | false                           | Whether or not to use an agent process (only used for SCP)                                     |
-| `target`          | String   | ""                              | Target directory on remote host                                                                |
-| `source`          | String   | ""                              | Source directory relative to project root                                                      |
-| `ignore`          | Array    | [".remote-sync.json",".git/**"] | Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore          |
-| `watch`           | Array    | []                              | Array of files (relative to project root - starting with "/") to watch for changes             |
-| `uploadMirrors`   | Array    | []                              | Transport mirror config array when upload                                                      |
-| `uploadOnSave`    | Boolean  | false                           | Whether or not to upload the current file when saved                                           |
-| `saveOnUpload`    | Boolean  | false                           | Whether or not to save a modified file before uploading                                        |
-| `useAtomicWrites` | Boolean  | false                           | Upload file using a temporary filename before moving to its final location (only used for SCP) |
-| `deleteLocal`     | Boolean  | false                           | Whether or not to delete the local file / folder after remote delete                           |
-
+| Option            | Datatype | Default                         | Details                                                                                                                                        |
+| ----------------- | -------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `transport`       | String   | ""                              | `scp` for SCP/SFTP, or `ftp` for FTP                                                                                                           |
+| `hostname`        | String   | ""                              | Remote host address                                                                                                                            |
+| `port`            | String   | ""                              | Remort port to connect on (typically 22 for SCP/SFTP, 21 for FTP)                                                                              |
+| `username`        | String   | ""                              | Remote host username                                                                                                                           |
+| `password`        | String   | ""                              | Remote host password                                                                                                                           |
+| `keyfile`         | String   | ""                              | Absolute path to SSH key (only used for SCP)                                                                                                   |
+| `passphrase`      | String   | ""                              | Passphrase for the SSH key (only used for SCP)                                                                                                 |
+| `useAgent`        | String   | false                           | Whether or not to use an agent process (only used for SCP)                                                                                     |
+| `target`          | String   | ""                              | Target directory on remote host                                                                                                                |
+| `source`          | String   | ""                              | Source directory relative to project root                                                                                                      |
+| `ignore`          | Array    | [".remote-sync.json",".git/**"] | Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore                                                          |
+| `watch`           | Array    | \[]                             | Array of files (relative to project root - starting with "/") to watch for changes Supports the use of widecards example `/public/assets/**/*` |
+| `uploadMirrors`   | Array    | \[]                             | Transport mirror config array when upload                                                                                                      |
+| `uploadOnSave`    | Boolean  | false                           | Whether or not to upload the current file when saved                                                                                           |
+| `saveOnUpload`    | Boolean  | false                           | Whether or not to save a modified file before uploading                                                                                        |
+| `useAtomicWrites` | Boolean  | false                           | Upload file using a temporary filename before moving to its final location (only used for SCP)                                                 |
+| `deleteLocal`     | Boolean  | false                           | Whether or not to delete the local file / folder after remote delete                                                                           |
 
 ## Example configuration's
 
