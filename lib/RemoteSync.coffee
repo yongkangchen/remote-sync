@@ -1,7 +1,7 @@
 path = require "path"
 fs = require "fs-plus"
 chokidar = require "chokidar"
-isValidGlob = require('is-valid-glob');
+isValidGlob = require "is-valid-glob"
 
 exec = null
 minimatch = null
@@ -168,19 +168,22 @@ class RemoteSync
   monitorGlob: (dirPath)->
     return if !isValidGlob(dirPath)
     console.log "monitor glob please", dirPath
+    @.monitorWatch(dirPath)
 
   # basic monitor function
   # starts the watching of file/folder/glob/etc..
   monitorWatch: (dirPath)->
-    MonitoredFiles.push dirPath
-    watcher.add(dirPath)
+    if dirPath not in MonitoredFiles
+      MonitoredFiles.push dirPath
+      watcher.add(dirPath)
 
   # basic unmonitor function
   # unwatching of file/folder/glob/etc..
   monitorUnwatch: (dirPath)->
-    watcher.unwatch(dirPath)
-    index = MonitoredFiles.indexOf(dirPath)
-    MonitoredFiles.splice(index, 1)
+    if dirPath in MonitoredFiles
+      watcher.unwatch(dirPath)
+      index = MonitoredFiles.indexOf(dirPath)
+      MonitoredFiles.splice(index, 1)
 
   # builds a string to output monitor notice
   monitorNotification: (fileName = "", watching = true, isFolder = false) ->
@@ -265,6 +268,8 @@ class RemoteSync
 
   # method that checks is a directory
   isDirectory: (dirPath) ->
+    if isGlob = isValidGlob(dirPath)
+      return false
     if directory = fs.statSync(dirPath).isDirectory()
       return true
 
