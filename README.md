@@ -1,6 +1,6 @@
 ![Atom Remote Sync](http://i.imgur.com/xBqYanL.png)
 
-# Atom Remote Sync [![Atom.io](https://img.shields.io/badge/Atom.io-1.8.0-40A977.svg)](https://atom.io) [![GitHub stars](https://img.shields.io/github/stars/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/stargazers) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/yongkangchen/remote-sync/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/issues)
+# Atom Remote Sync [![Atom.io](https://img.shields.io/badge/Atom.io-1.9.6-40A977.svg)](https://atom.io) [![GitHub stars](https://img.shields.io/github/stars/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/stargazers) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/yongkangchen/remote-sync/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/issues)
 
 Use SFTP and FTP features inside Atom, having the ability to upload and download files directly from inside Atom.
 
@@ -87,6 +87,7 @@ The `.remote-sync.json` in your project root will use these options:
 | `username`        | String   | ""                              | Remote host username                                                                                                                           |
 | `password`        | String   | ""                              | Remote host password                                                                                                                           |
 | `keyfile`         | String   | ""                              | Absolute path to SSH key (only used for SCP)                                                                                                   |
+| `secure`          | Boolean  | false                           | Set to true for both control and data connection encryption                                                                                    |
 | `passphrase`      | String   | ""                              | Passphrase for the SSH key (only used for SCP)                                                                                                 |
 | `useAgent`        | String   | false                           | Whether or not to use an agent process (only used for SCP)                                                                                     |
 | `target`          | String   | ""                              | Target directory on remote host                                                                                                                |
