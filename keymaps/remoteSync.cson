@@ -1,0 +1,5 @@
+'atom-text-editor':
+  'alt-shift-R c': 'remote-sync:configure'
+  'alt-shift-R m': 'remote-sync:monitor-file'
+  'alt-shift-R u': 'remote-sync:upload-file'
+  'alt-shift-R d': 'remote-sync:download-file'
