@@ -87,6 +87,7 @@ The `.remote-sync.json` in your project root will use these options:
 | `username`        | String   | ""                              | Remote host username                                                                           |
 | `password`        | String   | ""                              | Remote host password                                                                           |
 | `keyfile`         | String   | ""                              | Absolute path to SSH key (only used for SCP)                                                   |
+| `secure`          | Boolean  | false                           | Set to true for both control and data connection encryption (only used for FTP)                |
 | `passphrase`      | String   | ""                              | Passphrase for the SSH key (only used for SCP)                                                 |
 | `useAgent`        | String   | false                           | Whether or not to use an agent process (only used for SCP)                                     |
 | `target`          | String   | ""                              | Target directory on remote host                                                                |
