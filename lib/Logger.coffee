@@ -23,6 +23,11 @@ class Logger
       className: className
 
     @panel.body.scrollTop(1e10)
+
+    if atom.config.get("remote-sync.foldLogPanel") and not @foldedPanel
+      @panel.toggle()
+      @foldedPanel = true
+
     msg
 
   log: (message) ->
