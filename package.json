@@ -16,8 +16,8 @@
     "fs-plus": "^2.1",
     "ftp": "^0.3.7",
     "is-valid-glob": "^0.3.0",
-    "minimatch": "^0.2",
+    "minimatch": "^3.0",
     "mkdirp": "^0.3",
-    "ssh2": "^0.2"
+    "ssh2": "^0.5"
   }
 }

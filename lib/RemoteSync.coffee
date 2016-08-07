@@ -52,7 +52,7 @@ class RemoteSync
 
       minimatch ?= require "minimatch"
       for pattern in ignore
-        return true if minimatch filePath, pattern, { matchBase: true, dot: true }
+        return true if minimatch filePath, pattern, { dot: true }
       return false
 
   isIgnore: (filePath, relativizePath)->
