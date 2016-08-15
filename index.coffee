@@ -63,30 +63,35 @@ configure = (e)->
     RemoteSync.configure projectPath, -> reload(projectPath)
 
 module.exports =
-    config:
-        logToConsole:
-            type: 'boolean'
-            default: false
-            title: 'Log to console'
-            description: 'Log messages to the console instead of the status view at the bottom of the window'
-        autoHideLogPanel:
-            type: 'boolean'
-            default: false
-            title: 'Hide log panel after transferring'
-            description: 'Hides the status view at the bottom of the window after the transfer operation is done'
-        monitorFileAnimation:
-            type: 'boolean'
-            default: true
-            title: 'Monitor file animation'
-            description: 'Toggles the pulse animation for a monitored file'
-        difftoolCommand:
-            type: 'string'
-            default: ''
-            title: 'Diff tool command'
-            description: 'The command to run for your diff tool'
-        configFileName:
-            type: 'string'
-            default: '.remote-sync.json'
+  config:
+    logToConsole:
+        type: 'boolean'
+        default: false
+        title: 'Log to console'
+        description: 'Log messages to the console instead of the status view at the bottom of the window'
+    autoHideLogPanel:
+        type: 'boolean'
+        default: false
+        title: 'Hide log panel after transferring'
+        description: 'Hides the status view at the bottom of the window after the transfer operation is done'
+    foldLogPanel:
+      type: 'boolean'
+      default: false
+      title: 'Fold log panel by default'
+      description: 'Shows only one line in the status view'
+    monitorFileAnimation:
+        type: 'boolean'
+        default: true
+        title: 'Monitor file animation'
+        description: 'Toggles the pulse animation for a monitored file'
+    difftoolCommand:
+        type: 'string'
+        default: ''
+        title: 'Diff tool command'
+        description: 'The command to run for your diff tool'
+    configFileName:
+        type: 'string'
+        default: '.remote-sync.json'
 
     activate: (state) ->
         projectDict = {}
