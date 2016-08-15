@@ -69,6 +69,11 @@ module.exports =
       default: false
       title: 'Hide log panel after transferring'
       description: 'Hides the status view at the bottom of the window after the transfer operation is done'
+    foldLogPanel:
+      type: 'boolean'
+      default: false
+      title: 'Fold log panel by default'
+      description: 'Shows only one line in the status view'
     monitorFileAnimation:
       type: 'boolean'
       default: true
