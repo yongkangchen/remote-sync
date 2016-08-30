@@ -135,9 +135,21 @@ class RemoteSync
     # if not already init create a watcher
     if !watchChangeSet
       _this = @
-      watcher.on('change', (path) ->
-        _this.uploadFile(path)
-      )
+
+      watcher.on('ready', () ->
+        watcher.on('change', (path) ->
+          _this.uploadFile(path)
+        )
+
+        watcher.on('add', (path) ->
+          _this.uploadFile(path);
+        )
+
+        watcher.on('unlink', (path)->
+          _this.deleteFile(path);
+          _this.monitorUnwatch(path);
+        );
+      );
       watchChangeSet = true
 
   # function called to toggle monitor file/folder
