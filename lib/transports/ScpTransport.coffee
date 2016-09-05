@@ -51,11 +51,12 @@ class ScpTransport
 
       end = @logger.log "Upload: #{localFilePath} to #{targetFilePath} ..."
 
-      c.sftp (err, sftp) =>
+      c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) =>
         return errorHandler err if err
-
-        c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) =>
+          
+        c.sftp (err, sftp) =>
           return errorHandler err if err
+
 
           uploadFilePath = if @settings.useAtomicWrites then "#{targetFilePath}.temp" else "#{targetFilePath}"
 
