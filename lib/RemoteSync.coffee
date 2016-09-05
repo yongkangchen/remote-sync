@@ -130,8 +130,7 @@ class RemoteSync
     , 250
 
   monitorFile: (dirPath, toggle = true, notifications = true)->
-    return if !@fileExists(dirPath)
-    return if !@isDirectory(dirPath)
+    return if (!@fileExists(dirPath) && !@isDirectory(dirPath))
     fileName = @.monitorFileName(dirPath)
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
