@@ -13,13 +13,18 @@ class ScpTransport
       @connection = null
 
   delete: (localFilePath, callback) ->
+    fs = require "fs" if not fs
+    if not fs.existsSync localFilePath
+      callback()
+      return false
+
     targetFilePath = path.join(@settings.target,
                           path.relative(@projectPath, localFilePath))
                           .replace(/\\/g, "/")
 
     errorHandler = (err) =>
       @logger.error err
-      callback()
+      callback(err)
 
     @_getConnection (err, c) =>
       return errorHandler err if err
@@ -38,13 +43,18 @@ class ScpTransport
 
   upload: (localFilePath, callback) ->
     fs = require "fs" if not fs
+
+    if not fs.existsSync localFilePath
+      callback()
+      return false
+
     targetFilePath = path.join(@settings.target,
                           path.relative(fs.realpathSync(@projectPath), fs.realpathSync(localFilePath)))
                           .replace(/\\/g, "/")
 
     errorHandler = (err) =>
       @logger.error err
-      callback()
+      callback(err)
 
     @_getConnection (err, c) =>
       return errorHandler err if err
@@ -53,7 +63,7 @@ class ScpTransport
 
       c.exec "mkdir -p \"#{path.dirname(targetFilePath)}\"", (err) =>
         return errorHandler err if err
-          
+
         c.sftp (err, sftp) =>
           return errorHandler err if err
 
@@ -159,7 +169,7 @@ class ScpTransport
         return false;
     else
       privateKey = null
-      
+
     agent = switch
       when useAgent is true
         if /windows/i.test process.env['OS']
@@ -170,7 +180,7 @@ class ScpTransport
         useAgent
       else
         null
-    
+
     connection.connect
       host: hostname
       port: port
