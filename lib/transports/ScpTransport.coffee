@@ -13,11 +13,6 @@ class ScpTransport
       @connection = null
 
   delete: (localFilePath, callback) ->
-    fs = require "fs" if not fs
-    if not fs.existsSync localFilePath
-      callback()
-      return false
-
     targetFilePath = path.join(@settings.target,
                           path.relative(@projectPath, localFilePath))
                           .replace(/\\/g, "/")
