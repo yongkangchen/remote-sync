@@ -51,7 +51,7 @@ class RemoteSync
 
       minimatch ?= require "minimatch"
       for pattern in ignore
-        return true if minimatch filePath, pattern, { dot: true }
+        return true if minimatch filePath, pattern, { matchBase: true, dot: true }
       return false
 
   isIgnore: (filePath, relativizePath)->
@@ -130,7 +130,8 @@ class RemoteSync
     , 250
 
   monitorFile: (dirPath, toggle = true, notifications = true)->
-    return if (!@fileExists(dirPath) && !@isDirectory(dirPath))
+    return if !@fileExists(dirPath) && !@isDirectory(dirPath)
+
     fileName = @.monitorFileName(dirPath)
     if dirPath not in MonitoredFiles
       MonitoredFiles.push dirPath
@@ -142,6 +143,9 @@ class RemoteSync
         _this = @
         watcher.on('change', (path) ->
           _this.uploadFile(path)
+        )
+        watcher.on('unlink', (path) ->
+          _this.deleteFile(path)
         )
         watchChangeSet = true
     else if toggle
