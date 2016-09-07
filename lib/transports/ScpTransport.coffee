@@ -152,7 +152,11 @@ class ScpTransport
 
     if keyfile
       fs = require "fs" if not fs
-      privateKey = fs.readFileSync keyfile
+      try
+        privateKey = fs.readFileSync keyfile
+      catch err
+        callback(err);
+        return false;
     else
       privateKey = null
       
