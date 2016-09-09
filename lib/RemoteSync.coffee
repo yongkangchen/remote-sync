@@ -1,6 +1,7 @@
 path = require "path"
 fs = require "fs-plus"
 chokidar = require "chokidar"
+randomize = require "randomatic"
 
 exec = null
 minimatch = null
@@ -275,14 +276,14 @@ class RemoteSync
     realPath = path.join(@host.target, realPath).replace(/\\/g, "/")
 
     os = require "os" if not os
-    targetPath = path.join os.tmpDir(), "remote-sync"
+    targetPath = path.join os.tmpDir(), "remote-sync", randomize('A0', 16)
 
     @getTransport().download realPath, targetPath, =>
       @diff localPath, targetPath
 
   diffFolder: (localPath)->
     os = require "os" if not os
-    targetPath = path.join os.tmpDir(), "remote-sync"
+    targetPath = path.join os.tmpDir(), "remote-sync", randomize('A0', 16)
     @downloadFolder localPath, targetPath, =>
       @diff localPath, targetPath
 
