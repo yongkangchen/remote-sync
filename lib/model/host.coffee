@@ -11,7 +11,7 @@ class Host
       for k, v of settings
         this[k] = v
     catch err
-      console.log "load #{configPath}, #{err}"
+      console.log "load #{@configPath}, #{err}"
 
     @port?= ""
     @port = @port.toString()
