@@ -19,7 +19,7 @@ class UploadListener
     if @queue.length()
       task = @queue._tasks.head
       while task
-       if task.data.localFilePath == localFilePath && task.data.action == action
+       if task.data.localFilePath == localFilePath && task.data.action == action && task.data.transport.settings.transport == transport.settings.transport && task.data.transport.settings.hostname == transport.settings.hostname && task.data.transport.settings.port == transport.settings.port && task.data.transport.settings.target == transport.settings.target
          task.data.discard = true
        task = task.next
 
