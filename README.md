@@ -48,6 +48,10 @@ You can install this like any other Atom package, with one of these methods:
 - Enter the directory
 - Run `apm install`
 
+## Configuration
+
+-  [Diff tool command](https://github.com/yongkangchen/remote-sync#diff-tool-command)
+
 ## Usage
 
 You can configure remote sync a couple of ways:
@@ -218,6 +222,39 @@ The `.remote-sync.json` in your project root will use these options:
   ]
 }
 ```
+## Diff tool command
+
+You can use any GUI app which takes two arguments without parameters like **meld** or **gvimdiff**.
+
+If you want to use app with parameters or console app, try this:
+
+- **code**(visual studio code)
+
+  create shell script `atom-diff-code` in `/usr/local/bin/` with command 
+  
+  ```
+  #!/bin/bash
+  code -d -n --disable-extensions $1 $2
+  ```
+  
+  Then set `atom-diff-code` in Diff tool command setting in remote-sync in atom
+
+- vim in Ubuntu:
+  
+  `atom-diff-vimdiff`
+  
+  ```
+  #!/bin/bash
+  gnome-terminal -x bash -c "vimdiff  $1 $2"
+  ```
+- diff in Ubuntu:
+
+  `atom-diff-diff`
+
+  ```
+  #!/bin/bash
+  gnome-terminal -x bash -c "diff $1 $2; exec bash"
+  ```
 
 # Make a donation via Paypal ![Make a donation via Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)
 
