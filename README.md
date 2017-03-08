@@ -228,7 +228,7 @@ You can use any GUI app which takes two arguments without parameters like **meld
 
 If you want to use app with parameters or console app, try this:
 
-- **code**(visual studio code)
+- **code** (visual studio code)
 
   create shell script `atom-diff-code` in `/usr/local/bin/` with command 
   
@@ -239,7 +239,7 @@ If you want to use app with parameters or console app, try this:
   
   Then set `atom-diff-code` in Diff tool command setting in remote-sync in atom
 
-- vim in Ubuntu:
+- **vim** in Ubuntu:
   
   `atom-diff-vimdiff`
   
@@ -247,7 +247,7 @@ If you want to use app with parameters or console app, try this:
   #!/bin/bash
   gnome-terminal -x bash -c "vimdiff  $1 $2"
   ```
-- diff in Ubuntu:
+- **diff** in Ubuntu:
 
   `atom-diff-diff`
 
