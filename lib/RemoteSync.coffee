@@ -112,6 +112,7 @@ class RemoteSync
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
+    , (->)
 
   initMonitor: ()->
     _this = @
@@ -243,7 +244,9 @@ class RemoteSync
 
     fs.traverseTree dirPath, (path)=>
       @uploadFile(path) if isChangedPath(path)
-    , (path)=> return not @isIgnore(path)
+    , (path) =>
+      return not @isIgnore(path)
+    , (->)
 
   createTransport: (host)->
     if host.transport is 'scp' or host.transport is 'sftp'
