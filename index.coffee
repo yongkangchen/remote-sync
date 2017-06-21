@@ -114,30 +114,81 @@ module.exports =
       initProject(projectPaths)
 
     disposables.add atom.workspace.observeTextEditors (editor) ->
-      onDidSave = editor.onDidSave (e) ->
-        fullPath = e.path
-        [projectPath, relativePath] = atom.project.relativizePath(fullPath)
-        return unless projectPath
+      atom.packages.activatePackage('tree-view').then ((pkg) ->
+        treeView = pkg.mainModule.treeView
+        onDidSave = editor.onDidSave (e) ->
+          fullPath = e.path
+          [projectPath, relativePath] = atom.project.relativizePath(fullPath)
+          return unless projectPath
 
-        projectPath = fs.realpathSync(projectPath)
-        projectObj = projectDict[projectPath]
-        return unless projectObj
+          projectPath = fs.realpathSync(projectPath)
+          projectObj = projectDict[projectPath]
+          return unless projectObj
 
-        if fs.realpathSync(fullPath) == fs.realpathSync(projectObj.configPath)
-          projectObj = reload(projectPath)
+          if fs.realpathSync(fullPath) == fs.realpathSync(projectObj.configPath)
+            projectObj = reload(projectPath)
 
-        return unless projectObj.host.uploadOnSave
-        projectObj.uploadFile(fs.realpathSync(fullPath))
+          return unless projectObj.host.uploadOnSave
+          projectObj.uploadFile(fs.realpathSync(fullPath))
 
+        onDidDelete = treeView.onEntryDeleted (e) ->
+          fullPath = e.path
+          [projectPath, relativePath] = atom.project.relativizePath(fullPath)
 
-      onDidDestroy = editor.onDidDestroy ->
-        disposables.remove onDidSave
-        disposables.remove onDidDestroy
-        onDidDestroy.dispose()
-        onDidSave.dispose()
+          return unless projectPath
 
-      disposables.add onDidSave
-      disposables.add onDidDestroy
+          projectPath = fs.realpathSync(projectPath)
+          projectObj = projectDict[projectPath]
+          return unless projectObj
+
+          # if fs.realpathSync(fullPath) == fs.realpathSync(projectObj.configPath)
+          #   projectObj = reload(projectPath)
+
+          return unless projectObj.host.uploadOnSave
+          remotePath = projectObj.host.target + relativePath
+          projectObj.deleteFile(fullPath)
+          return
+        
+        onDidRename = treeView.onEntryMoved (e) ->
+          initialPath = e.initialPath
+          newPath = e.newPath
+          [projectPath, relativePath] = atom.project.relativizePath(newPath)
+          console.log newPath, projectPath, relativePath
+          return unless projectPath
+    
+          projectPath = fs.realpathSync(projectPath)
+          projectObj = projectDict[projectPath]
+          return unless projectObj
+    
+          # if fs.realpathSync(fullPath) == fs.realpathSync(projectObj.configPath)
+          #   projectObj = reload(projectPath)
+    
+          return unless projectObj.host.uploadOnSave
+          remotePath = projectObj.host.target + relativePath
+          
+          # rename the lazy way by deleting and re-uploading
+          projectObj.uploadFile(fs.realpathSync(newPath))
+          projectObj.deleteFile(initialPath)
+          return
+        
+        onDidDestroy = editor.onDidDestroy ->
+          disposables.remove onDidSave
+          disposables.remove onDidDelete
+          disposables.remove onDidRename
+          disposables.remove onDidDestroy
+
+          onDidSave.dispose()
+          onDidDelete.dispose()
+          onDidRename.dispose()
+          onDidDestroy.dispose()
+
+        disposables.add onDidSave
+        disposables.add onDidDelete
+        disposables.add onDidRename
+        disposables.add onDidDestroy
+      ), (reason) ->
+        atom.notifications.addWarning 'The tree-view package is not loaded.', description: reason.message
+        return
 
   deactivate: ->
     disposables.dispose()
