@@ -1,6 +1,6 @@
 ![Atom Remote Sync](http://i.imgur.com/xBqYanL.png)
 
-# Atom Remote Sync [![Atom.io](https://img.shields.io/badge/Atom.io-1.7.3-40A977.svg)](https://atom.io) [![GitHub stars](https://img.shields.io/github/stars/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/stargazers) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/yongkangchen/remote-sync/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/issues)
+# Atom Remote Sync [![Atom.io](https://img.shields.io/badge/Atom.io-1.21.1-40A977.svg)](https://atom.io) [![GitHub stars](https://img.shields.io/github/stars/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/stargazers) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/yongkangchen/remote-sync/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/yongkangchen/remote-sync.svg)](https://github.com/yongkangchen/remote-sync/issues)
 
 Use SFTP and FTP features inside Atom, having the ability to upload and download files directly from inside Atom.
 
