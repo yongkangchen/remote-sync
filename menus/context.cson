@@ -7,17 +7,18 @@
       {label: 'Diff File', command: 'remote-sync:diff-file'}
       {label: 'Delete File', command: 'remote-sync:delete-file'}
       {label: 'Monitor File (Upload on External Save)', command: 'remote-sync:monitor-file'}
+      {label: 'Configure', command: 'remote-sync:configure'}
     ]
   ]
 
-  '.entries.list-tree .header.list-item, .entries.list-tree .directory.entry.list-nested-item.collapsed':[
+  '.entries.list-tree .header.list-item, .header.list-item.project-root-header':[
     label: 'Remote Sync',
     submenu:[
-      {label: 'Configure', command: 'remote-sync:configure'}
       {label: 'Upload Folder', command: 'remote-sync:upload-folder'}
       {label: 'Upload Folder Change', command: 'remote-sync:upload-git-change'}
       {label: 'Download Folder', command: 'remote-sync:download-folder'}
       {label: 'Diff Folder', command: 'remote-sync:diff-folder'}
       {label: 'Delete Folder', command: 'remote-sync:delete-folder'}
+      {label: 'Configure', command: 'remote-sync:configure'}
     ]
   ]
