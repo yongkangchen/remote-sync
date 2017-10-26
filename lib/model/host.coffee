@@ -3,7 +3,7 @@ EventEmitter = require("events").EventEmitter
 
 module.exports =
 class Host
-  constructor: (@configPath, @emitter) ->
+  constructor: (@configPath, @logger, @emitter) ->
     return if !fs.existsSync @configPath
     try
       data = fs.readFileSync @configPath, "utf8"
@@ -11,7 +11,10 @@ class Host
       for k, v of settings
         this[k] = v
     catch err
-      console.log "load #{@configPath}, #{err}"
+      @logger.error "#{err}, in file: #{@configPath}"
+      atom.notifications.addError "RemoteSync Error",
+      {dismissable: true, detail: "#{err}", description: "#{@configPath}" }
+      throw error
 
     @port?= ""
     @port = @port.toString()

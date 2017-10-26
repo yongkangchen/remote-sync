@@ -33,7 +33,7 @@ class RemoteSync
   constructor: (@projectPath, @configPath) ->
     Host ?= require './model/host'
 
-    @host = new Host(@configPath)
+    @host = new Host(@configPath, getLogger())
     watchFiles = @host.watch?.split(",").filter(Boolean)
     @projectPath = path.join(@projectPath, @host.source) if @host.source
     if watchFiles?
@@ -112,6 +112,7 @@ class RemoteSync
   uploadFolder: (dirPath)->
     fs.traverseTree dirPath, @uploadFile.bind(@), =>
       return not @isIgnore(dirPath)
+    , (->)
 
   initMonitor: ()->
     _this = @
@@ -243,7 +244,9 @@ class RemoteSync
 
     fs.traverseTree dirPath, (path)=>
       @uploadFile(path) if isChangedPath(path)
-    , (path)=> return not @isIgnore(path)
+    , (path) =>
+      return not @isIgnore(path)
+    , (->)
 
   createTransport: (host)->
     if host.transport is 'scp' or host.transport is 'sftp'
@@ -314,6 +317,6 @@ module.exports =
     emitter.on "configured", callback
 
     configPath = path.join projectPath, atom.config.get('remote-sync.configFileName')
-    host = new Host(configPath, emitter)
+    host = new Host(configPath, getLogger(), emitter)
     view = new HostView(host)
     view.attach()
