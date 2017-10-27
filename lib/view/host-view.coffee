@@ -50,7 +50,7 @@ class ConfigView extends View
       @subview 'watch', new TextEditorView(mini: true, placeholderText: "Files that will be automatically watched on project open")
 
       @div =>
-        @label " uploadOnSave", =>
+        @label " uploadOnSave (also syncs deletes and renames done in TreeView)", =>
           @input type: 'checkbox', outlet: 'uploadOnSave'
 
       @div =>

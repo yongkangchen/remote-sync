@@ -95,7 +95,7 @@ The `.remote-sync.json` in your project root will use these options:
 | `ignore`          | Array    | [".remote-sync.json",".git/**"] | Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore          |
 | `watch`           | Array    | []                              | Array of files (relative to project root - starting with "/") to watch for changes             |
 | `uploadMirrors`   | Array    | []                              | Transport mirror config array when upload                                                      |
-| `uploadOnSave`    | Boolean  | false                           | Whether or not to upload the current file when saved                                           |
+| `uploadOnSave`    | Boolean  | false                           | Whether or not to upload the current file when saved (also syncs deletes and renames done in TreeView)                                           |
 | `saveOnUpload`    | Boolean  | false                           | Whether or not to save a modified file before uploading                                        |
 | `useAtomicWrites` | Boolean  | false                           | Upload file using a temporary filename before moving to its final location (only used for SCP) |
 | `deleteLocal`     | Boolean  | false                           | Whether or not to delete the local file / folder after remote delete                           |
