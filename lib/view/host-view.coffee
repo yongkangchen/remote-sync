@@ -46,6 +46,9 @@ class ConfigView extends View
       @div class: 'block', outlet: 'ftpPasswordBlock', style: 'display:none', =>
         @label 'Password'
 
+      @label 'Keepalive'
+      @subview 'keepalive', new TextEditorView(mini: true, placeholderText: "Interval to send keepalive requests in seconds. Leave blank to disable")
+
       @label 'Watch automatically'
       @subview 'watch', new TextEditorView(mini: true, placeholderText: "Files that will be automatically watched on project open")
 
@@ -133,6 +136,8 @@ class ConfigView extends View
       @host.useAgent = true
     else
       @host.useAgent = undefined
+
+    @host.keepalive = parseInt(@host.keepalive) || 0
 
     @host.saveJSON()
     @close()

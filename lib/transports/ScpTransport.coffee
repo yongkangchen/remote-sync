@@ -131,7 +131,7 @@ class ScpTransport
           callback null, files
 
   _getConnection: (callback) ->
-    {hostname, port, username, password, keyfile, useAgent, passphrase, readyTimeout} = @settings
+    {hostname, port, username, password, keyfile, useAgent, passphrase, readyTimeout, keepalive} = @settings
 
     if @connection
       return callback null, @connection
@@ -185,5 +185,6 @@ class ScpTransport
       passphrase: passphrase
       readyTimeout: readyTimeout
       agent: agent
+	  keepaliveInterval: keepalive * 1000 || 0
 
     @connection = connection
