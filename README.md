@@ -94,6 +94,7 @@ The `.remote-sync.json` in your project root will use these options:
 | `source`          | String   | ""                              | Source directory relative to project root                                                      |
 | `ignore`          | Array    | [".remote-sync.json",".git/**"] | Array of [minimatch](https://github.com/isaacs/minimatch) patterns of files to ignore          |
 | `watch`           | Array    | []                              | Array of files (relative to project root - starting with "/") to watch for changes             |
+| `keepalive`       | Integer  | 0                               | Number of seconds to wait between two keepalive                                                |
 | `uploadMirrors`   | Array    | []                              | Transport mirror config array when upload                                                      |
 | `uploadOnSave`    | Boolean  | false                           | Whether or not to upload the current file when saved                                           |
 | `saveOnUpload`    | Boolean  | false                           | Whether or not to save a modified file before uploading                                        |
@@ -122,7 +123,8 @@ The `.remote-sync.json` in your project root will use these options:
   "watch":[
     "/css/styles.css",
     "/index.html"
-  ]
+  ],
+  "keepalive": 60
 }
 ```
 
@@ -164,7 +166,8 @@ The `.remote-sync.json` in your project root will use these options:
   "watch":[
     "/css/styles.css",
     "/index.html"
-  ]
+  ],
+  "keepalive": 60
 }
 ```
 

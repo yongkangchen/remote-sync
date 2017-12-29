@@ -114,7 +114,7 @@ class FtpTransport
       directory(targetPath)
 
   _getConnection: (callback) ->
-    {hostname, port, username, password, secure} = @settings
+    {hostname, port, username, password, secure, keepalive} = @settings
 
     if @connection
       return callback null, @connection
@@ -144,5 +144,6 @@ class FtpTransport
       user: username
       password: password
       secure: secure
+	  keepalive: keepalive * 1000 || 0
 
     @connection = connection
