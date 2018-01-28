@@ -117,16 +117,24 @@ class FtpTransport
     {hostname, port, username, password, secure} = @settings
 
     if @connection
-      return callback null, @connection
-
-    @logger.log "Connecting: #{username}@#{hostname}:#{port}"
+      connection = @connection
+      if @isConnected
+        return callback null, connection
+      else
+        connection.on "ready", ->
+          callback null, connection
+        return
 
     FtpConnection = require "ftp" if not FtpConnection
-
     connection = new FtpConnection
+    @connection = connection
+    @isConnected = false
+
+    @logger.log "Connecting: #{username}@#{hostname}:#{port}"
     wasReady = false
 
-    connection.on "ready", ->
+    connection.on "ready", =>
+      @isConnected = true
       wasReady = true
       callback null, connection
 
@@ -136,6 +144,7 @@ class FtpTransport
       @connection = null
 
     connection.on "end", =>
+      @isConnected = false
       @connection = null
 
     connection.connect
@@ -144,5 +153,3 @@ class FtpTransport
       user: username
       password: password
       secure: secure
-
-    @connection = connection

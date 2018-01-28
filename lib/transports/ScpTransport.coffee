@@ -134,16 +134,24 @@ class ScpTransport
     {hostname, port, username, password, keyfile, useAgent, passphrase, readyTimeout} = @settings
 
     if @connection
-      return callback null, @connection
-
-    @logger.log "Connecting: #{username}@#{hostname}:#{port}"
+      connection = @connection
+      if @isConnected
+        return callback null, connection
+      else
+        connection.on "ready", ->
+          callback null, connection
+        return
 
     SSHConnection = require "ssh2" if not SSHConnection
-
     connection = new SSHConnection
+    @connection = connection
+    @isConnected = false
+
+    @logger.log "Connecting: #{username}@#{hostname}:#{port}"
     wasReady = false
 
-    connection.on "ready", ->
+    connection.on "ready", =>
+      @isConnected = true
       wasReady = true
       callback null, connection
 
@@ -153,6 +161,7 @@ class ScpTransport
       @connection = null
 
     connection.on "end", =>
+      @isConnected = false
       @connection = null
 
     if keyfile
@@ -185,5 +194,3 @@ class ScpTransport
       passphrase: passphrase
       readyTimeout: readyTimeout
       agent: agent
-
-    @connection = connection
