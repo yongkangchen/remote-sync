@@ -87,6 +87,10 @@ module.exports =
     configFileName:
       type: 'string'
       default: '.remote-sync.json'
+    concurrentTransports:
+      type: 'integer'
+      default: '1'
+      description: 'How many transfers in process at the same time'
 
   activate: (state) ->
     projectDict = {}

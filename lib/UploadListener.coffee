@@ -13,7 +13,7 @@ class UploadListener
   handleAction: (localFilePath, transport, action) ->
     if not @queue
       async = require "async" if not async
-      @queue = async.queue(@processFile.bind(@), 1)
+      @queue = async.queue(@processFile.bind(@), atom.config.get('remote-sync-pro.concurrentTransports'))
 
 
     if @queue.length()
