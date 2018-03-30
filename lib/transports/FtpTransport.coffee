@@ -72,13 +72,18 @@ class FtpTransport
       return errorHandler err if err
 
       end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ..."
+      self = @
 
       mkdirp = require "mkdirp" if not mkdirp
       mkdirp path.dirname(localFilePath), (err) ->
         return errorHandler err if err
 
         c.get targetFilePath, (err, readableStream) ->
-          return errorHandler err if err
+          if err
+            if self.settings.skipErrors
+              self.logger.error err
+            else
+              return errorHandler err if err
 
           fs = require "fs-plus" if not fs
           writableStream = fs.createWriteStream(localFilePath)

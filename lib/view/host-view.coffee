@@ -50,6 +50,10 @@ class ConfigView extends View
       @subview 'watch', new TextEditorView(mini: true, placeholderText: "Files that will be automatically watched on project open")
 
       @div =>
+        @label " skipErrors", =>
+          @input type: 'checkbox', outlet: 'skipErrors'
+
+      @div =>
         @label " uploadOnSave", =>
           @input type: 'checkbox', outlet: 'uploadOnSave'
 
@@ -101,6 +105,7 @@ class ConfigView extends View
       dataName = $(editor).prev().text().split(" ")[0].toLowerCase()
       $(editor).view().setText(@host[dataName] or "")
 
+    @skipErrors.prop('checked', @host.skipErrors)
     @uploadOnSave.prop('checked', @host.uploadOnSave)
     @useAtomicWrites.prop('checked', @host.useAtomicWrites)
     @deleteLocal.prop('checked', @host.deleteLocal)
@@ -119,6 +124,7 @@ class ConfigView extends View
     @disposables.dispose()
 
   confirm: ->
+    @host.skipErrors = @skipErrors.prop('checked')
     @host.uploadOnSave = @uploadOnSave.prop('checked')
     @host.useAtomicWrites = @useAtomicWrites.prop('checked')
     @host.deleteLocal = @deleteLocal.prop('checked')
