@@ -93,6 +93,7 @@ class ScpTransport
       return errorHandler err if err
 
       end = @logger.log "Download: #{targetFilePath} to #{localFilePath} ..."
+      self = @
 
       c.sftp (err, sftp) ->
         return errorHandler err if err
@@ -101,7 +102,11 @@ class ScpTransport
           return errorHandler err if err
 
           sftp.fastGet targetFilePath, localFilePath, (err) ->
-            return errorHandler err if err
+            if err
+              if self.settings.skipErrors
+                self.logger.error err
+              else
+                return errorHandler err if err
 
             end()
 
