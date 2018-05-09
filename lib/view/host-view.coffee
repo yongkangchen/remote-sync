@@ -22,7 +22,7 @@ class ConfigView extends View
       @subview 'target', new TextEditorView(mini: true)
 
       @label 'Ignore Paths'
-      @subview 'ignore', new TextEditorView(mini: true, placeholderText: "Default: .remote-sync.json, .git/**")
+      @subview 'ignore', new TextEditorView(mini: true, placeholderText: "Default: .remote-sync.json, .git/**, .ssh/**")
 
       @label 'Username'
       @subview 'username', new TextEditorView(mini: true)
